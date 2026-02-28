@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Early Head Start Outreach Map - Full Area</title>
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+    
+    <style>
+        body { margin: 0; padding: 0; font-family: sans-serif; }
+        #map { width: 100vw; height: 100vh; }
+        
+        /* Control box styling */
+        .leaflet-control-layers {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script src="https://unpkg.com/esri-leaflet@3.0.12/dist/esri-leaflet.js"></script>
+
+<script>
+    // 1. Define the center coordinates
+    const lat = 42.39676629287921;
+    const lng = -71.1031099204534;
+
+    // 2. Initialize the map
+    const map = L.map('map').setView([lat, lng], 13);
+
+    // 3. Add MassGIS Basemaps
+    L.tileLayer('https://tiles.arcgis.com/tiles/hGdibHYSPO59RG1h/arcgis/rest/services/MassGISBasemap/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 19,
+        attribution: '&copy; MassGIS'
+    }).addTo(map);
+
+    L.tileLayer('https://tiles.arcgis.com/tiles/hGdibHYSPO59RG1h/arcgis/rest/services/MassGIS_Basemap_Detailed_Features/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 19,
+        attribution: '&copy; MassGIS Detailed Features'
+    }).addTo(map);
+
+    // 4. Create the 3-mile buffer 
+    L.circle([lat, lng], {
+        color: 'red',
+        weight: 2,
+        fillColor: 'red',
+        fillOpacity: 0.05,
+        radius: 3 * 1609.344,
+        interactive: false 
+    }).addTo(map);
+
+    // 5. Add Center Marker
+    L.marker([lat, lng]).addTo(map)
+      .bindPopup("<b>Riverside Community Care Early Head Start</b><br>Outreach Centerpoint").openPopup();
+
+    // --- FEDERAL HUD DATA (ArcGIS REST) ---
+
+    // 6. HUD Public Housing (Blue Points)
+    const publicHousing = L.esri.featureLayer({
+        url: 'https://services.arcgis.com/VTyQ9soqVukalItT/arcgis/rest/services/Public_Housing_Buildings/FeatureServer/0',
+        pointToLayer: function (geojson, latlng) {
+            return L.circleMarker(latlng, { color: '#003366', weight: 1, fillColor: '#0077FF', fillOpacity: 0.8, radius: 6 });
+        }
+    }).bindPopup(function (layer) {
+        const props = layer.feature.properties;
+        return `<b>${props.FORMAL_PARTICIPANT_NAME || props.PROJECT_NAME || "HUD Public Housing"}</b><br>Type: Federal Public Housing`;
+    }).addTo(map);
+
+    // 7. HUD Assisted Multifamily (Green Points)
+    const assistedHousing = L.esri.featureLayer({
+        url: 'https://services.arcgis.com/VTyQ9soqVukalItT/arcgis/rest/services/Multifamily_Properties_Assisted/FeatureServer/0',
+        pointToLayer: function (geojson, latlng) {
+            return L.circleMarker(latlng, { color: '#004d00', weight: 1, fillColor: '#33CC33', fillOpacity: 0.8, radius: 6 });
+        }
+    }).bindPopup(function (layer) {
+        const props = layer.feature.properties;
+        return `<b>${props.PROPERTY_NAME_TEXT || props.PROPERTY_NAME || "HUD Assisted Housing"}</b><br>Type: Subsidized / Affordable`;
+    }).addTo(map);
+
+    // --- LOCAL MUNICIPAL DATA ---
+
+    // 8. Cambridge Housing Authority Data (Purple Points - Socrata JSON)
+    const cambridgeHousing = L.layerGroup();
+    const cambridgeUrl = new URL("https://data.cambridgema.gov/resource/9fxi-einu.json");
+    cambridgeUrl.searchParams.append("$where", "upper(owner_name) like '%HOUSING AUTHORITY%'");
+    cambridgeUrl.searchParams.append("$limit", "5000"); 
+
+    fetch(cambridgeUrl)
+        .then(response => response.json())
+        .then(data => {
+            data.forEach(row => {
+                const lat = row.latitude || (row.location && row.location.latitude);
+                const lng = row.longitude || (row.location && row.location.longitude);
+                if (lat && lng) {
+                    const marker = L.circleMarker([parseFloat(lat), parseFloat(lng)], {
+                        color: '#4B0082', weight: 1, fillColor: '#9370DB', fillOpacity: 0.9, radius: 6
+                    });
+                    marker.bindPopup(`<b>${row.address || "Unknown Address"}</b><br>Owner: ${row.owner_name || "Cambridge Housing Authority"}<br>Type: City Public Housing (Cambridge)`);
+                    cambridgeHousing.addLayer(marker);
+                }
+            });
+        })
+        .catch(err => console.error("Failed to load Cambridge Data", err));
+    cambridgeHousing.addTo(map);
+
+    // 9. Somerville Housing Authority Data (Orange Polygons - MassGIS REST)
+    const somervilleHousing = L.esri.featureLayer({
+        url: 'https://services1.arcgis.com/hGdibHYSPO59RG1h/arcgis/rest/services/L3_TAXPAR_POLY_ASSESS_gdb/FeatureServer/0',
+        where: "CITY = 'SOMERVILLE' AND OWNER1 LIKE '%HOUSING AUTHORITY%'",
+        style: function () {
+            return { color: '#cc5500', weight: 2, fillColor: '#ff8c00', fillOpacity: 0.7 };
+        }
+    }).bindPopup(function (layer) {
+        const props = layer.feature.properties;
+        return `<b>${props.SITE_ADDR || "Unknown Address"}</b><br>Owner: ${props.OWNER1}<br>Type: City Public Housing Parcel (Somerville)`;
+    }).addTo(map);
+
+
+    // 10. Add Layer Control Box 
+    const overlays = {
+        "<span style='color:#0077FF; font-weight:bold;'>●</span> HUD Public Housing (Federal)": publicHousing,
+        "<span style='color:#33CC33; font-weight:bold;'>●</span> HUD Assisted (Federal)": assistedHousing,
+        "<span style='color:#9370DB; font-weight:bold;'>●</span> Cambridge Housing (Local)": cambridgeHousing,
+        "<span style='color:#ff8c00; font-weight:bold;'>■</span> Somerville Housing Parcels (Local)": somervilleHousing
+    };
+    
+    L.control.layers(null, overlays, { collapsed: false }).addTo(map);
+
+</script>
+</body>
+</html>
