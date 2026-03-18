@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Early Head Start Outreach Map - Local Housing Data</title>
+    <title>Early Head Start Outreach Map - Poverty & Housing</title>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
     
@@ -38,6 +38,7 @@
 <div id="map"></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script src="https://unpkg.com/esri-leaflet@3.0.12/dist/esri-leaflet.js"></script>
 
 <script>
     // 1. Define the center coordinates
@@ -62,10 +63,10 @@
     L.circle([lat, lng], {
         color: 'red',
         weight: 2,
-        fillColor: 'red',
-        fillOpacity: 0.05,
+        fillColor: 'transparent',
+        fillOpacity: 0,
         radius: 3 * 1609.344,
-        interactive: false // Prevents the buffer from blocking clicks on points beneath it
+        interactive: false 
     }).addTo(map);
 
     // 5. Add Center Marker
@@ -79,11 +80,65 @@
     const controlContainer = layerControl.getContainer();
     const titleDiv = document.createElement('div');
     titleDiv.className = 'control-title';
-    titleDiv.innerHTML = "Affordable Housing and Public (Federal/State) Housing Location";
+    titleDiv.innerHTML = "Outreach Planning: Poverty Demographics & Housing";
     controlContainer.prepend(titleDiv);
     // -----------------------------------------
 
-    // 7. Reusable function to fetch and map the custom JSON files
+    // --- NEW: CENSUS TRACT POVERTY DATA (Esri Living Atlas) ---
+    // Queries the live ACS Poverty Status by Age database (Tract Layer is index 2)
+    const childPovertyTracts = L.esri.featureLayer({
+        url: 'https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/ACS_Poverty_by_Age_Boundaries/FeatureServer/2',
+        where: "STATE = '25'", // Filter to Massachusetts to speed up rendering
+        style: function (feature) {
+            const props = feature.properties;
+            
+            // Sum up the poverty counts for the three age brackets under 18
+            // B17020_003E = Under 6 years
+            // B17020_004E = 6 to 11 years
+            // B17020_005E = 12 to 17 years
+            const childrenInPoverty = (props.B17020_003E || 0) + (props.B17020_004E || 0) + (props.B17020_005E || 0);
+
+            // Determine the color shade based on poverty count
+            let fillColor;
+            if (childrenInPoverty > 250) fillColor = '#800026';       // Dark Red (Highest)
+            else if (childrenInPoverty > 100) fillColor = '#E31A1C';  // Red
+            else if (childrenInPoverty > 50) fillColor = '#FD8D3C';   // Orange
+            else if (childrenInPoverty > 10) fillColor = '#FED976';   // Yellow
+            else fillColor = '#f2f2f2';                               // Gray (Lowest/None)
+
+            return {
+                fillColor: fillColor,
+                weight: 1,
+                opacity: 0.8,
+                color: '#ffffff', // White tract borders
+                fillOpacity: 0.65
+            };
+        }
+    });
+
+    // Add interactive popups to the tracts
+    childPovertyTracts.bindPopup(function (layer) {
+        const props = layer.feature.properties;
+        const childrenInPoverty = (props.B17020_003E || 0) + (props.B17020_004E || 0) + (props.B17020_005E || 0);
+        return `
+            <div style="font-size: 14px;">
+                <b>Census Tract:</b> ${props.GEOID}<br>
+                <hr style="margin: 5px 0;">
+                <b>Total Children in Poverty:</b> <span style="color:red; font-weight:bold;">${childrenInPoverty}</span><br>
+                <ul style="margin: 5px 0; padding-left: 20px; font-size: 12px;">
+                    <li>Under 6 years: ${props.B17020_003E || 0}</li>
+                    <li>6 to 11 years: ${props.B17020_004E || 0}</li>
+                    <li>12 to 17 years: ${props.B17020_005E || 0}</li>
+                </ul>
+            </div>
+        `;
+    });
+
+    // Add it to map and to the legend control box
+    childPovertyTracts.addTo(map);
+    layerControl.addOverlay(childPovertyTracts, `<span style='color:#E31A1C; font-weight:bold;'>■</span> Children in Poverty (Tracts)`);
+
+    // --- LOCAL HOUSING DATA (JSON FILES) ---
     function loadCityHousingData(filePath, layerName, markerColor) {
         const layerGroup = L.layerGroup();
 
@@ -93,46 +148,4 @@
                 return response.json();
             })
             .then(data => {
-                // The uploaded JSON files contain an array of objects. 
-                // We need to find the specific object that holds "allResults"
-                const targetObject = data.find(obj => obj.data && obj.data.buildingSearch && obj.data.buildingSearch.allResults);
-                
-                if (targetObject) {
-                    const buildings = targetObject.data.buildingSearch.allResults;
-
-                    buildings.forEach(building => {
-                        // Check if the building has valid coordinates
-                        if (building.location && building.location.latitude && building.location.longitude) {
-                            const marker = L.circleMarker([building.location.latitude, building.location.longitude], {
-                                color: '#ffffff', // White border for contrast
-                                weight: 1,
-                                fillColor: markerColor,
-                                fillOpacity: 0.9,
-                                radius: 7
-                            });
-
-                            // Create the popup content
-                            marker.bindPopup(`<b>${building.name || "Unnamed Facility"}</b><br>City: ${layerName}<br>ID: ${building.slug || building.id}`);
-                            layerGroup.addLayer(marker);
-                        }
-                    });
-                } else {
-                    console.warn(`Could not find 'allResults' array in ${filePath}`);
-                }
-            })
-            .catch(err => console.error(err));
-
-        // Add the group to the map and to the legend control box
-        layerGroup.addTo(map);
-        layerControl.addOverlay(layerGroup, `<span style='color:${markerColor}; font-weight:bold; font-size:16px;'>●</span> ${layerName} Housing`);
-    }
-
-    // 8. Load each of the uploaded JSON files from the data directory
-    loadCityHousingData('data/Everett.json', 'Everett', '#e6194b');    
-    loadCityHousingData('data/Malden.json', 'Malden', '#911eb4');      
-    loadCityHousingData('data/Medford.json', 'Medford', '#069494');    
-    loadCityHousingData('data/Somerville.json', 'Somerville', '#4363d8'); 
-
-</script>
-</body>
-</html>
+                const targetObject = data.find(obj => obj.data && obj.data.building
