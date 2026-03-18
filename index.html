@@ -8,8 +8,8 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
     
     <style>
-        body { margin: 0; padding: 0; font-family: sans-serif; }
-        #map { width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: 1;}
+        body { margin: 0; padding: 0; font-family: sans-serif; overflow: hidden; }
+        #map { width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: 1; }
         
         /* Control box styling */
         .leaflet-control-layers {
@@ -38,7 +38,7 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(0, 0, 0, 0.7);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -120,7 +120,7 @@
             <b>Methodological Caveat:</b> Federal poverty thresholds are uniform across the contiguous United States and do not adjust for regional cost-of-living disparities. Because the Greater Boston metropolitan area requires disproportionately high expenditures for housing and essentials, the official poverty measure likely underrepresents true economic hardship. Many families residing outside the heavily shaded tracts may still experience profound financial instability and qualify for programmatic support.
         </div>
         
-        <button id="initMapBtn" class="start-btn">Initialize Map</button>
+        <button class="start-btn" onclick="startMap()">Initialize Map</button>
     </div>
 </div>
 
@@ -130,157 +130,151 @@
 <script src="https://unpkg.com/esri-leaflet@3.0.12/dist/esri-leaflet.js"></script>
 
 <script>
-    // 1. Define the center coordinates globally
     const lat = 42.39676629287921;
     const lng = -71.1031099204534;
     let map;
+    let mapInitialized = false;
 
-    // 2. Attach Event Listener to the Button
-    document.getElementById('initMapBtn').addEventListener('click', function() {
-        // Hide the modal completely
+    // This function is directly triggered by the button click
+    function startMap() {
+        // 1. Hide the modal
         document.getElementById('welcomeModal').style.display = 'none';
         
-        // Wait 100 milliseconds for the browser to redraw the empty screen, then build map
-        setTimeout(buildLeafletMap, 100);
-    });
+        // 2. Prevent the map from being built twice if the user clicks fast
+        if (mapInitialized) return;
+        mapInitialized = true;
 
-    // 3. Map Building Logic
+        // 3. Give the browser a tiny delay to update the CSS, then build the map
+        setTimeout(() => {
+            buildLeafletMap();
+        }, 100);
+    }
+
+    // This holds all the actual mapping logic
     function buildLeafletMap() {
-        try {
-            // Initialize the map
-            map = L.map('map', { zoomControl: false }).setView([lat, lng], 13);
-            
-            // Force Leaflet to recalculate the container size
-            map.invalidateSize();
-            
-            // Add zoom control to top right 
-            L.control.zoom({ position: 'topright' }).addTo(map);
+        // Initialize the map
+        map = L.map('map', { zoomControl: false }).setView([lat, lng], 13);
+        
+        // Crucial fix: Forces Leaflet to recalculate the size of the window now that the modal is gone
+        map.invalidateSize();
+        
+        L.control.zoom({ position: 'topright' }).addTo(map);
 
-            // Add MassGIS Basemaps
-            L.tileLayer('https://tiles.arcgis.com/tiles/hGdibHYSPO59RG1h/arcgis/rest/services/MassGISBasemap/MapServer/tile/{z}/{y}/{x}', {
-                maxZoom: 19,
-                attribution: '&copy; MassGIS'
-            }).addTo(map);
+        L.tileLayer('https://tiles.arcgis.com/tiles/hGdibHYSPO59RG1h/arcgis/rest/services/MassGISBasemap/MapServer/tile/{z}/{y}/{x}', {
+            maxZoom: 19,
+            attribution: '&copy; MassGIS'
+        }).addTo(map);
 
-            L.tileLayer('https://tiles.arcgis.com/tiles/hGdibHYSPO59RG1h/arcgis/rest/services/MassGIS_Basemap_Detailed_Features/MapServer/tile/{z}/{y}/{x}', {
-                maxZoom: 19,
-                attribution: '&copy; MassGIS Detailed Features'
-            }).addTo(map);
+        L.tileLayer('https://tiles.arcgis.com/tiles/hGdibHYSPO59RG1h/arcgis/rest/services/MassGIS_Basemap_Detailed_Features/MapServer/tile/{z}/{y}/{x}', {
+            maxZoom: 19,
+            attribution: '&copy; MassGIS Detailed Features'
+        }).addTo(map);
 
-            // Create the 3-mile buffer 
-            L.circle([lat, lng], {
-                color: 'red',
-                weight: 2,
-                fillColor: 'transparent',
-                fillOpacity: 0,
-                radius: 3 * 1609.344,
-                interactive: false 
-            }).addTo(map);
+        L.circle([lat, lng], {
+            color: 'red',
+            weight: 2,
+            fillColor: 'transparent',
+            fillOpacity: 0,
+            radius: 3 * 1609.344,
+            interactive: false 
+        }).addTo(map);
 
-            // Add Center Marker
-            L.marker([lat, lng]).addTo(map)
-              .bindPopup("<b>Riverside Community Care Early Head Start</b><br>Outreach Centerpoint").openPopup();
+        L.marker([lat, lng]).addTo(map)
+          .bindPopup("<b>Riverside Community Care Early Head Start</b><br>Outreach Centerpoint").openPopup();
 
-            // Initialize Layer Control Box safely
-            const layerControl = L.control.layers({}, {}, { collapsed: false, position: 'bottomright' }).addTo(map);
+        const layerControl = L.control.layers({}, {}, { collapsed: false, position: 'bottomright' }).addTo(map);
 
-            // Add Custom Title to Layer Control
-            const controlContainer = layerControl.getContainer();
-            if (controlContainer) {
-                const titleDiv = document.createElement('div');
-                titleDiv.className = 'control-title';
-                titleDiv.innerHTML = "Outreach Planning: Poverty Demographics & Housing";
-                controlContainer.prepend(titleDiv);
-            }
-
-            // --- CENSUS TRACT POVERTY DATA (Esri Living Atlas) ---
-            const childPovertyTracts = L.esri.featureLayer({
-                url: 'https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/ACS_Poverty_by_Age_Boundaries/FeatureServer/2',
-                style: function (feature) {
-                    const props = feature.properties;
-                    const childrenInPoverty = (props.B17020_003E || 0) + (props.B17020_004E || 0) + (props.B17020_005E || 0);
-
-                    let fillColor = '#f2f2f2'; 
-                    if (childrenInPoverty > 250) fillColor = '#800026';
-                    else if (childrenInPoverty > 100) fillColor = '#E31A1C';
-                    else if (childrenInPoverty > 50) fillColor = '#FD8D3C';
-                    else if (childrenInPoverty > 10) fillColor = '#FED976';
-
-                    return {
-                        fillColor: fillColor,
-                        weight: 1,
-                        opacity: 0.8,
-                        color: '#ffffff',
-                        fillOpacity: 0.65
-                    };
-                }
-            });
-
-            childPovertyTracts.bindPopup(function (layer) {
-                const props = layer.feature.properties;
-                const childrenInPoverty = (props.B17020_003E || 0) + (props.B17020_004E || 0) + (props.B17020_005E || 0);
-                return `
-                    <div style="font-size: 14px;">
-                        <b>Census Tract:</b> ${props.GEOID}<br>
-                        <hr style="margin: 5px 0;">
-                        <b>Total Children in Poverty:</b> <span style="color:red; font-weight:bold;">${childrenInPoverty}</span><br>
-                        <ul style="margin: 5px 0; padding-left: 20px; font-size: 12px;">
-                            <li>Under 6 years: ${props.B17020_003E || 0}</li>
-                            <li>6 to 11 years: ${props.B17020_004E || 0}</li>
-                            <li>12 to 17 years: ${props.B17020_005E || 0}</li>
-                        </ul>
-                    </div>
-                `;
-            });
-
-            childPovertyTracts.addTo(map);
-            layerControl.addOverlay(childPovertyTracts, `<span style='color:#E31A1C; font-weight:bold;'>■</span> Children in Poverty (Tracts)`);
-
-            // --- LOCAL HOUSING DATA (JSON FILES) ---
-            function loadCityHousingData(filePath, layerName, markerColor) {
-                const layerGroup = L.layerGroup();
-
-                fetch(filePath)
-                    .then(response => {
-                        if (!response.ok) throw new Error(`Could not load ${filePath}`);
-                        return response.json();
-                    })
-                    .then(data => {
-                        const targetObject = data.find(obj => obj.data && obj.data.buildingSearch && obj.data.buildingSearch.allResults);
-                        
-                        if (targetObject) {
-                            const buildings = targetObject.data.buildingSearch.allResults;
-                            buildings.forEach(building => {
-                                if (building.location && building.location.latitude && building.location.longitude) {
-                                    const marker = L.circleMarker([building.location.latitude, building.location.longitude], {
-                                        color: '#ffffff',
-                                        weight: 1.5,
-                                        fillColor: markerColor,
-                                        fillOpacity: 0.9,
-                                        radius: 6
-                                    });
-
-                                    marker.bindPopup(`<b>${building.name || "Unnamed Facility"}</b><br>City: ${layerName}<br>ID: ${building.slug || building.id}`);
-                                    layerGroup.addLayer(marker);
-                                }
-                            });
-                        }
-                    })
-                    .catch(err => console.error("Housing data fetch error:", err));
-
-                layerGroup.addTo(map);
-                layerControl.addOverlay(layerGroup, `<span style='color:${markerColor}; font-weight:bold; font-size:16px;'>●</span> ${layerName} Housing`);
-            }
-
-            // Load each of the uploaded JSON files from the data directory
-            loadCityHousingData('data/Everett.json', 'Everett', '#e6194b');    
-            loadCityHousingData('data/Malden.json', 'Malden', '#911eb4');      
-            loadCityHousingData('data/Medford.json', 'Medford', '#f58231');    
-            loadCityHousingData('data/Somerville.json', 'Somerville', '#4363d8'); 
-
-        } catch (error) {
-            console.error("Map initialization failed:", error);
+        const controlContainer = layerControl.getContainer();
+        if (controlContainer) {
+            const titleDiv = document.createElement('div');
+            titleDiv.className = 'control-title';
+            titleDiv.innerHTML = "Outreach Planning: Poverty Demographics & Housing";
+            controlContainer.prepend(titleDiv);
         }
+
+        // --- CENSUS TRACT POVERTY DATA ---
+        const childPovertyTracts = L.esri.featureLayer({
+            url: 'https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/ACS_Poverty_by_Age_Boundaries/FeatureServer/2',
+            style: function (feature) {
+                const props = feature.properties;
+                const childrenInPoverty = (props.B17020_003E || 0) + (props.B17020_004E || 0) + (props.B17020_005E || 0);
+
+                let fillColor = '#f2f2f2'; 
+                if (childrenInPoverty > 250) fillColor = '#800026';
+                else if (childrenInPoverty > 100) fillColor = '#E31A1C';
+                else if (childrenInPoverty > 50) fillColor = '#FD8D3C';
+                else if (childrenInPoverty > 10) fillColor = '#FED976';
+
+                return {
+                    fillColor: fillColor,
+                    weight: 1,
+                    opacity: 0.8,
+                    color: '#ffffff',
+                    fillOpacity: 0.65
+                };
+            }
+        });
+
+        childPovertyTracts.bindPopup(function (layer) {
+            const props = layer.feature.properties;
+            const childrenInPoverty = (props.B17020_003E || 0) + (props.B17020_004E || 0) + (props.B17020_005E || 0);
+            return `
+                <div style="font-size: 14px;">
+                    <b>Census Tract:</b> ${props.GEOID}<br>
+                    <hr style="margin: 5px 0;">
+                    <b>Total Children in Poverty:</b> <span style="color:red; font-weight:bold;">${childrenInPoverty}</span><br>
+                    <ul style="margin: 5px 0; padding-left: 20px; font-size: 12px;">
+                        <li>Under 6 years: ${props.B17020_003E || 0}</li>
+                        <li>6 to 11 years: ${props.B17020_004E || 0}</li>
+                        <li>12 to 17 years: ${props.B17020_005E || 0}</li>
+                    </ul>
+                </div>
+            `;
+        });
+
+        childPovertyTracts.addTo(map);
+        layerControl.addOverlay(childPovertyTracts, `<span style='color:#E31A1C; font-weight:bold;'>■</span> Children in Poverty (Tracts)`);
+
+        // --- LOCAL HOUSING DATA ---
+        function loadCityHousingData(filePath, layerName, markerColor) {
+            const layerGroup = L.layerGroup();
+
+            fetch(filePath)
+                .then(response => {
+                    if (!response.ok) throw new Error(`Could not load ${filePath}`);
+                    return response.json();
+                })
+                .then(data => {
+                    const targetObject = data.find(obj => obj.data && obj.data.buildingSearch && obj.data.buildingSearch.allResults);
+                    
+                    if (targetObject) {
+                        const buildings = targetObject.data.buildingSearch.allResults;
+                        buildings.forEach(building => {
+                            if (building.location && building.location.latitude && building.location.longitude) {
+                                const marker = L.circleMarker([building.location.latitude, building.location.longitude], {
+                                    color: '#ffffff',
+                                    weight: 1.5,
+                                    fillColor: markerColor,
+                                    fillOpacity: 0.9,
+                                    radius: 6
+                                });
+
+                                marker.bindPopup(`<b>${building.name || "Unnamed Facility"}</b><br>City: ${layerName}<br>ID: ${building.slug || building.id}`);
+                                layerGroup.addLayer(marker);
+                            }
+                        });
+                    }
+                })
+                .catch(err => console.error("Housing data fetch error:", err));
+
+            layerGroup.addTo(map);
+            layerControl.addOverlay(layerGroup, `<span style='color:${markerColor}; font-weight:bold; font-size:16px;'>●</span> ${layerName} Housing`);
+        }
+
+        loadCityHousingData('data/Everett.json', 'Everett', '#e6194b');    
+        loadCityHousingData('data/Malden.json', 'Malden', '#911eb4');      
+        loadCityHousingData('data/Medford.json', 'Medford', '#f58231');    
+        loadCityHousingData('data/Somerville.json', 'Somerville', '#4363d8'); 
     }
 </script>
 </body>
