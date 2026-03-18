@@ -31,7 +31,7 @@
             max-width: 250px;
         }
 
-        /* --- UPDATED: RESPONSIVE SEARCH BAR --- */
+        /* --- RESPONSIVE SEARCH BAR --- */
         #search-container {
             position: absolute;
             top: 15px;
@@ -42,7 +42,7 @@
             border-radius: 5px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.3);
             display: flex;
-            flex-wrap: wrap; /* Allows wrapping on very small screens */
+            flex-wrap: wrap; 
             gap: 5px;
             max-width: calc(100vw - 70px);
             box-sizing: border-box;
@@ -70,7 +70,7 @@
         .clear-btn { background: #95a5a6 !important; }
         .clear-btn:hover { background: #7f8c8d !important; }
 
-        /* --- UPDATED: RESPONSIVE MODAL POPUP --- */
+        /* --- RESPONSIVE MODAL POPUP --- */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -88,10 +88,10 @@
             background: white;
             padding: 25px;
             border-radius: 8px;
-            width: 90%; /* Ensures it doesn't touch phone screen edges */
+            width: 90%; 
             max-width: 600px;
-            max-height: 90vh; /* Allows scrolling on small screens */
-            overflow-y: auto; /* Adds scrollbar if text is too long */
+            max-height: 90vh; 
+            overflow-y: auto; 
             box-sizing: border-box;
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
             line-height: 1.6;
@@ -308,6 +308,7 @@
         // --- CENSUS TRACT POVERTY DATA ---
         const childPovertyTracts = L.esri.featureLayer({
             url: 'https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/ACS_Poverty_by_Age_Boundaries/FeatureServer/2',
+            where: "GEOID LIKE '25%'", // Only query Massachusetts tracts to improve performance
             style: function (feature) {
                 const props = feature.properties;
                 const childrenInPoverty = (props.B17020_003E || 0) + (props.B17020_004E || 0) + (props.B17020_005E || 0);
@@ -345,7 +346,7 @@
             `;
         });
 
-        // REmoved .addTo(map) so it doesn't display on load
+        // Add to layer control box (Not drawn on map by default)
         layerControl.addOverlay(childPovertyTracts, `<span style='color:#E31A1C; font-weight:bold;'>■</span> Children in Poverty (Tracts)`);
 
         // --- LOCAL HOUSING DATA ---
@@ -365,7 +366,7 @@
                         buildings.forEach(building => {
                             if (building.location && building.location.latitude && building.location.longitude) {
                                 const marker = L.circleMarker([building.location.latitude, building.location.longitude], {
-                                    color: '#ffffff',
+                                    color: '#000000', // Changed to black outline for all housing points
                                     weight: 1.5,
                                     fillColor: markerColor,
                                     fillOpacity: 0.9,
@@ -384,9 +385,10 @@
             layerControl.addOverlay(layerGroup, `<span style='color:${markerColor}; font-weight:bold; font-size:16px;'>●</span> ${layerName} Housing`);
         }
 
+        // Updated Medford color to Teal (#008080)
         loadCityHousingData('data/Everett.json', 'Everett', '#e6194b');    
         loadCityHousingData('data/Malden.json', 'Malden', '#911eb4');      
-        loadCityHousingData('data/Medford.json', 'Medford', '#f58231');    
+        loadCityHousingData('data/Medford.json', 'Medford', '#008080');    
         loadCityHousingData('data/Somerville.json', 'Somerville', '#4363d8'); 
     }
 </script>
