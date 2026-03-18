@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Early Head Start Outreach Map - Full Area</title>
+    <title>Early Head Start Outreach Map - Local Housing Data</title>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
     
@@ -17,6 +17,8 @@
             padding: 10px;
             border-radius: 5px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            max-height: 90vh;
+            overflow-y: auto;
         }
     </style>
 </head>
@@ -25,7 +27,6 @@
 <div id="map"></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-<script src="https://unpkg.com/esri-leaflet@3.0.12/dist/esri-leaflet.js"></script>
 
 <script>
     // 1. Define the center coordinates
@@ -53,85 +54,65 @@
         fillColor: 'red',
         fillOpacity: 0.05,
         radius: 3 * 1609.344,
-        interactive: false 
+        interactive: false // Prevents the buffer from blocking clicks on points beneath it
     }).addTo(map);
 
     // 5. Add Center Marker
     L.marker([lat, lng]).addTo(map)
       .bindPopup("<b>Riverside Community Care Early Head Start</b><br>Outreach Centerpoint").openPopup();
 
-    // --- FEDERAL HUD DATA (ArcGIS REST) ---
+    // 6. Initialize Layer Control Box
+    const layerControl = L.control.layers(null, {}, { collapsed: false }).addTo(map);
 
-    // 6. HUD Public Housing (Blue Points)
-    const publicHousing = L.esri.featureLayer({
-        url: 'https://services.arcgis.com/VTyQ9soqVukalItT/arcgis/rest/services/Public_Housing_Buildings/FeatureServer/0',
-        pointToLayer: function (geojson, latlng) {
-            return L.circleMarker(latlng, { color: '#003366', weight: 1, fillColor: '#0077FF', fillOpacity: 0.8, radius: 6 });
-        }
-    }).bindPopup(function (layer) {
-        const props = layer.feature.properties;
-        return `<b>${props.FORMAL_PARTICIPANT_NAME || props.PROJECT_NAME || "HUD Public Housing"}</b><br>Type: Federal Public Housing`;
-    }).addTo(map);
+    // 7. Reusable function to fetch and map the custom JSON files
+    function loadCityHousingData(filePath, layerName, markerColor) {
+        const layerGroup = L.layerGroup();
 
-    // 7. HUD Assisted Multifamily (Green Points)
-    const assistedHousing = L.esri.featureLayer({
-        url: 'https://services.arcgis.com/VTyQ9soqVukalItT/arcgis/rest/services/Multifamily_Properties_Assisted/FeatureServer/0',
-        pointToLayer: function (geojson, latlng) {
-            return L.circleMarker(latlng, { color: '#004d00', weight: 1, fillColor: '#33CC33', fillOpacity: 0.8, radius: 6 });
-        }
-    }).bindPopup(function (layer) {
-        const props = layer.feature.properties;
-        return `<b>${props.PROPERTY_NAME_TEXT || props.PROPERTY_NAME || "HUD Assisted Housing"}</b><br>Type: Subsidized / Affordable`;
-    }).addTo(map);
+        fetch(filePath)
+            .then(response => {
+                if (!response.ok) throw new Error(`Could not load ${filePath}`);
+                return response.json();
+            })
+            .then(data => {
+                // The uploaded JSON files contain an array of objects. 
+                // We need to find the specific object that holds "allResults"
+                const targetObject = data.find(obj => obj.data && obj.data.buildingSearch && obj.data.buildingSearch.allResults);
+                
+                if (targetObject) {
+                    const buildings = targetObject.data.buildingSearch.allResults;
 
-    // --- LOCAL MUNICIPAL DATA ---
+                    buildings.forEach(building => {
+                        // Check if the building has valid coordinates
+                        if (building.location && building.location.latitude && building.location.longitude) {
+                            const marker = L.circleMarker([building.location.latitude, building.location.longitude], {
+                                color: '#ffffff', // White border for contrast
+                                weight: 1,
+                                fillColor: markerColor,
+                                fillOpacity: 0.9,
+                                radius: 7
+                            });
 
-    // 8. Cambridge Housing Authority Data (Purple Points - Socrata JSON)
-    const cambridgeHousing = L.layerGroup();
-    const cambridgeUrl = new URL("https://data.cambridgema.gov/resource/9fxi-einu.json");
-    cambridgeUrl.searchParams.append("$where", "upper(owner_name) like '%HOUSING AUTHORITY%'");
-    cambridgeUrl.searchParams.append("$limit", "5000"); 
-
-    fetch(cambridgeUrl)
-        .then(response => response.json())
-        .then(data => {
-            data.forEach(row => {
-                const lat = row.latitude || (row.location && row.location.latitude);
-                const lng = row.longitude || (row.location && row.location.longitude);
-                if (lat && lng) {
-                    const marker = L.circleMarker([parseFloat(lat), parseFloat(lng)], {
-                        color: '#4B0082', weight: 1, fillColor: '#9370DB', fillOpacity: 0.9, radius: 6
+                            // Create the popup content
+                            marker.bindPopup(`<b>${building.name || "Unnamed Facility"}</b><br>City: ${layerName}<br>ID: ${building.slug || building.id}`);
+                            layerGroup.addLayer(marker);
+                        }
                     });
-                    marker.bindPopup(`<b>${row.address || "Unknown Address"}</b><br>Owner: ${row.owner_name || "Cambridge Housing Authority"}<br>Type: City Public Housing (Cambridge)`);
-                    cambridgeHousing.addLayer(marker);
+                } else {
+                    console.warn(`Could not find 'allResults' array in ${filePath}`);
                 }
-            });
-        })
-        .catch(err => console.error("Failed to load Cambridge Data", err));
-    cambridgeHousing.addTo(map);
+            })
+            .catch(err => console.error(err));
 
-    // 9. Somerville Housing Authority Data (Orange Polygons - MassGIS REST)
-    const somervilleHousing = L.esri.featureLayer({
-        url: 'https://services1.arcgis.com/hGdibHYSPO59RG1h/arcgis/rest/services/L3_TAXPAR_POLY_ASSESS_gdb/FeatureServer/0',
-        where: "CITY = 'SOMERVILLE' AND OWNER1 LIKE '%HOUSING AUTHORITY%'",
-        style: function () {
-            return { color: '#cc5500', weight: 2, fillColor: '#ff8c00', fillOpacity: 0.7 };
-        }
-    }).bindPopup(function (layer) {
-        const props = layer.feature.properties;
-        return `<b>${props.SITE_ADDR || "Unknown Address"}</b><br>Owner: ${props.OWNER1}<br>Type: City Public Housing Parcel (Somerville)`;
-    }).addTo(map);
+        // Add the group to the map and to the legend control box
+        layerGroup.addTo(map);
+        layerControl.addOverlay(layerGroup, `<span style='color:${markerColor}; font-weight:bold; font-size:16px;'>●</span> ${layerName} Housing`);
+    }
 
-
-    // 10. Add Layer Control Box 
-    const overlays = {
-        "<span style='color:#0077FF; font-weight:bold;'>●</span> HUD Public Housing (Federal)": publicHousing,
-        "<span style='color:#33CC33; font-weight:bold;'>●</span> HUD Assisted (Federal)": assistedHousing,
-        "<span style='color:#9370DB; font-weight:bold;'>●</span> Cambridge Housing (Local)": cambridgeHousing,
-        "<span style='color:#ff8c00; font-weight:bold;'>■</span> Somerville Housing Parcels (Local)": somervilleHousing
-    };
-    
-    L.control.layers(null, overlays, { collapsed: false }).addTo(map);
+    // 8. Load each of the uploaded JSON files from the data directory
+    loadCityHousingData('data/Everett.json', 'Everett', '#e6194b');    
+    loadCityHousingData('data/Malden.json', 'Malden', '#911eb4');      
+    loadCityHousingData('data/Medford.json', 'Medford', '#f58231');    
+    loadCityHousingData('data/Somerville.json', 'Somerville', '#4363d8'); 
 
 </script>
 </body>
