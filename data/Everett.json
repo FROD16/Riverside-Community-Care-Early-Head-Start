@@ -1,0 +1,366 @@
+[
+    {
+        "data": {
+            "buildingSearch": {
+                "pageSize": 15,
+                "currentPage": 1,
+                "totalPages": 2,
+                "nextPage": 2,
+                "prevPage": null,
+                "totalCount": 22,
+                "nearbyCount": 0,
+                "results": [
+                    {
+                        "id": "24358",
+                        "slug": "HN-MA-007930",
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "47102",
+                        "slug": "HN-MA-018769",
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "51166",
+                        "slug": "HN-MA-018808",
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "32395",
+                        "slug": "HN-MA-007866",
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "51599",
+                        "slug": "HN-MA-018549",
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "51487",
+                        "slug": "HN-MA-018842",
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "45576",
+                        "slug": "HN-MA-003858",
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "35076",
+                        "slug": "HN-MA-018050",
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "32623",
+                        "slug": "HN-MA-007238",
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "48821",
+                        "slug": "HN-MA-018448",
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "45500",
+                        "slug": "HN-MA-018641",
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "51064",
+                        "slug": "HN-MA-018831",
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "24555",
+                        "slug": "HN-MA-007610",
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "45304",
+                        "slug": "HN-MA-018439",
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "49802",
+                        "slug": "HN-MA-018894",
+                        "__typename": "Building"
+                    }
+                ],
+                "nearbyResults": [],
+                "__typename": "BuildingSearchResult"
+            }
+        }
+    },
+    {
+        "data": {
+            "buildingSearch": {
+                "pageSize": 15,
+                "totalPages": 2,
+                "nextPage": 2,
+                "prevPage": null,
+                "totalCount": 22,
+                "nearbyCount": 0,
+                "__typename": "BuildingSearchResult"
+            }
+        }
+    },
+    {
+        "data": {
+            "buildingSearch": {
+                "pageSize": 15,
+                "currentPage": 1,
+                "totalPages": 2,
+                "nextPage": 2,
+                "prevPage": null,
+                "totalCount": 22,
+                "nearbyCount": 0,
+                "allResults": [
+                    {
+                        "id": "35076",
+                        "slug": "HN-MA-018050",
+                        "name": "Caritas Communities: Everett Locations",
+                        "location": {
+                            "latitude": 42.4115534,
+                            "longitude": -71.0525933,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "45500",
+                        "slug": "HN-MA-018641",
+                        "name": "Anthem Everett",
+                        "location": {
+                            "latitude": 42.4025629,
+                            "longitude": -71.0534255,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "50030",
+                        "slug": "HN-MA-018898",
+                        "name": "Hanover Everett",
+                        "location": {
+                            "latitude": 42.3991079,
+                            "longitude": -71.0485606,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "48331",
+                        "slug": "HN-MA-018778",
+                        "name": "Beacham Street Apartments",
+                        "location": {
+                            "latitude": 42.3971783,
+                            "longitude": -71.06165210000002,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "48013",
+                        "slug": "HN-MA-018812",
+                        "name": "16 Laurel",
+                        "location": {
+                            "latitude": 42.4056588,
+                            "longitude": -71.06368189999999,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "51166",
+                        "slug": "HN-MA-018808",
+                        "name": "Jade",
+                        "location": {
+                            "latitude": 42.401002,
+                            "longitude": -71.04325779999999,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "32395",
+                        "slug": "HN-MA-007866",
+                        "name": "Cherry Street",
+                        "location": {
+                            "latitude": 42.4087373,
+                            "longitude": -71.0437125,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "45576",
+                        "slug": "HN-MA-003858",
+                        "name": "St. Therese",
+                        "location": {
+                            "latitude": 42.4174432,
+                            "longitude": -71.0460639,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "51599",
+                        "slug": "HN-MA-018549",
+                        "name": "302 Broadway",
+                        "location": {
+                            "latitude": 42.4031637,
+                            "longitude": -71.0596004,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "48821",
+                        "slug": "HN-MA-018448",
+                        "name": "322-324 Ferry Street",
+                        "location": {
+                            "latitude": 42.414307,
+                            "longitude": -71.0477662,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "45304",
+                        "slug": "HN-MA-018439",
+                        "name": "The Mason",
+                        "location": {
+                            "latitude": 42.400217,
+                            "longitude": -71.04464639999999,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "51487",
+                        "slug": "HN-MA-018842",
+                        "name": "536 Broadway",
+                        "location": {
+                            "latitude": 42.4098713,
+                            "longitude": -71.0532551,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "46856",
+                        "slug": "HN-MA-004156",
+                        "name": "Everett Villa Co-op",
+                        "location": {
+                            "latitude": 42.4031627,
+                            "longitude": -71.0619873,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "32623",
+                        "slug": "HN-MA-007238",
+                        "name": "Golden Age Circle",
+                        "location": {
+                            "latitude": 42.4050085,
+                            "longitude": -71.0442501,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "23327",
+                        "slug": "HN-MA-007044",
+                        "name": "Whittier",
+                        "location": {
+                            "latitude": 42.4202472,
+                            "longitude": -71.0427428,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "38218",
+                        "slug": "HN-MA-003651",
+                        "name": "Parkway Heights",
+                        "location": {
+                            "latitude": 42.4032296,
+                            "longitude": -71.0480589,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "51064",
+                        "slug": "HN-MA-018831",
+                        "name": "Artemas",
+                        "location": {
+                            "latitude": 42.407844,
+                            "longitude": -71.0652648,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "49895",
+                        "slug": "HN-MA-018227",
+                        "name": "The 600",
+                        "location": {
+                            "latitude": 42.4116859,
+                            "longitude": -71.0514252,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "49802",
+                        "slug": "HN-MA-018894",
+                        "name": "366 Broadway",
+                        "location": {
+                            "latitude": 42.4050354,
+                            "longitude": -71.0576464,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "47102",
+                        "slug": "HN-MA-018769",
+                        "name": "Maxwell",
+                        "location": {
+                            "latitude": 42.400647,
+                            "longitude": -71.044331,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "24358",
+                        "slug": "HN-MA-007930",
+                        "name": "Glendale Towers",
+                        "location": {
+                            "latitude": 42.4161966,
+                            "longitude": -71.0484303,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "24555",
+                        "slug": "HN-MA-007610",
+                        "name": "Russell Street",
+                        "location": {
+                            "latitude": 42.4165001,
+                            "longitude": -71.0441089,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    }
+                ],
+                "allNearbyResults": [],
+                "__typename": "BuildingSearchResult"
+            }
+        }
+    }
+]

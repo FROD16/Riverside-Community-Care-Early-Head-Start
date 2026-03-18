@@ -1,0 +1,322 @@
+[
+    {
+        "data": {
+            "buildingSearch": {
+                "pageSize": 15,
+                "currentPage": 1,
+                "totalPages": 2,
+                "nextPage": 2,
+                "prevPage": null,
+                "totalCount": 18,
+                "nearbyCount": 0,
+                "results": [
+                    {
+                        "id": "42351",
+                        "slug": "HN-MA-003654",
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "29715",
+                        "slug": "HN-MA-007641",
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "35723",
+                        "slug": "HN-MA-005161",
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "35717",
+                        "slug": "HN-MA-006246",
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "50670",
+                        "slug": "HN-MA-005655",
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "21059",
+                        "slug": "HN-MA-016739",
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "43067",
+                        "slug": "HN-MA-018156",
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "47668",
+                        "slug": "HN-MA-004951",
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "35714",
+                        "slug": "HN-MA-005562",
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "35721",
+                        "slug": "HN-MA-017547",
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "35722",
+                        "slug": "HN-MA-003859",
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "42791",
+                        "slug": "HN-MA-004549",
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "35720",
+                        "slug": "HN-MA-003459",
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "35718",
+                        "slug": "HN-MA-010094",
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "37655",
+                        "slug": "HN-MA-010493",
+                        "__typename": "Building"
+                    }
+                ],
+                "nearbyResults": [],
+                "__typename": "BuildingSearchResult"
+            }
+        }
+    },
+    {
+        "data": {
+            "buildingSearch": {
+                "pageSize": 15,
+                "totalPages": 2,
+                "nextPage": 2,
+                "prevPage": null,
+                "totalCount": 18,
+                "nearbyCount": 0,
+                "__typename": "BuildingSearchResult"
+            }
+        }
+    },
+    {
+        "data": {
+            "buildingSearch": {
+                "pageSize": 15,
+                "currentPage": 1,
+                "totalPages": 2,
+                "nextPage": 2,
+                "prevPage": null,
+                "totalCount": 18,
+                "nearbyCount": 0,
+                "allResults": [
+                    {
+                        "id": "21059",
+                        "slug": "HN-MA-016739",
+                        "name": "Malden Scattered Site",
+                        "location": {
+                            "latitude": 42.4290332,
+                            "longitude": -71.072459,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "35720",
+                        "slug": "HN-MA-003459",
+                        "name": "Mountain Ave",
+                        "location": {
+                            "latitude": 42.4308903,
+                            "longitude": -71.0689493,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "35718",
+                        "slug": "HN-MA-010094",
+                        "name": "Malden Gardens",
+                        "location": {
+                            "latitude": 42.428413,
+                            "longitude": -71.0680693,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "41941",
+                        "slug": "HN-MA-005365",
+                        "name": "Maplewood Place",
+                        "location": {
+                            "latitude": 42.4328536,
+                            "longitude": -71.0385409,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "35723",
+                        "slug": "HN-MA-005161",
+                        "name": "Pleasant St",
+                        "location": {
+                            "latitude": 42.4258718,
+                            "longitude": -71.0864074,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "50670",
+                        "slug": "HN-MA-005655",
+                        "name": "The Heritage Apartments",
+                        "location": {
+                            "latitude": 42.4277471,
+                            "longitude": -71.0722012,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "47668",
+                        "slug": "HN-MA-004951",
+                        "name": "Robinson Cuticura Mill Apartments",
+                        "location": {
+                            "latitude": 42.4188237,
+                            "longitude": -71.070904,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "35721",
+                        "slug": "HN-MA-017547",
+                        "name": "Pleasant Plaza",
+                        "location": {
+                            "latitude": 42.4275152,
+                            "longitude": -71.0686728,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "35717",
+                        "slug": "HN-MA-006246",
+                        "name": "Salem St A",
+                        "location": {
+                            "latitude": 42.4333117,
+                            "longitude": -71.0475018,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "46829",
+                        "slug": "HN-MA-007239",
+                        "name": "Springdale",
+                        "location": {
+                            "latitude": 42.432165,
+                            "longitude": -71.0305558,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "43067",
+                        "slug": "HN-MA-018156",
+                        "name": "54 Eastern Ave. Apartments",
+                        "location": {
+                            "latitude": 42.4241008,
+                            "longitude": -71.0659816,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "37655",
+                        "slug": "HN-MA-010493",
+                        "name": "Bowdoin Apartments",
+                        "location": {
+                            "latitude": 42.4277968,
+                            "longitude": -71.0501482,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "42791",
+                        "slug": "HN-MA-004549",
+                        "name": "Monsignor Neagle Apartments",
+                        "location": {
+                            "latitude": 42.4231574,
+                            "longitude": -71.0809292,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "35715",
+                        "slug": "HN-MA-003752",
+                        "name": "Newland St",
+                        "location": {
+                            "latitude": 42.4234268,
+                            "longitude": -71.0498464,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "35722",
+                        "slug": "HN-MA-003859",
+                        "name": "Pearl Street",
+                        "location": {
+                            "latitude": 42.4245121,
+                            "longitude": -71.0773545,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "29715",
+                        "slug": "HN-MA-007641",
+                        "name": "Forestdale",
+                        "location": {
+                            "latitude": 42.4399843,
+                            "longitude": -71.0547409,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "42351",
+                        "slug": "HN-MA-003654",
+                        "name": "Salem Towers",
+                        "location": {
+                            "latitude": 42.4312774,
+                            "longitude": -71.057716,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "35714",
+                        "slug": "HN-MA-005562",
+                        "name": "Suffolk Manor",
+                        "location": {
+                            "latitude": 42.4256039,
+                            "longitude": -71.0537282,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    }
+                ],
+                "allNearbyResults": [],
+                "__typename": "BuildingSearchResult"
+            }
+        }
+    }
+]

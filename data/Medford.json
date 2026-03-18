@@ -1,0 +1,354 @@
+[
+    {
+        "data": {
+            "buildingSearch": {
+                "pageSize": 15,
+                "currentPage": 1,
+                "totalPages": 2,
+                "nextPage": 2,
+                "prevPage": null,
+                "totalCount": 22,
+                "nearbyCount": 0,
+                "results": [
+                    {
+                        "id": "46392",
+                        "slug": "HN-MA-018390",
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "46830",
+                        "slug": "HN-MA-006152",
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "48361",
+                        "slug": "HN-MA-004950",
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "42387",
+                        "slug": "HN-MA-003518",
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "49708",
+                        "slug": "HN-MA-004952",
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "46674",
+                        "slug": "HN-MA-006548",
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "46832",
+                        "slug": "HN-MA-005054",
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "46387",
+                        "slug": "HN-MA-003655",
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "49280",
+                        "slug": "HN-MA-006549",
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "46690",
+                        "slug": "HN-MA-010656",
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "45837",
+                        "slug": "HN-MA-003751",
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "50209",
+                        "slug": "HN-MA-018954",
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "46393",
+                        "slug": "HN-MA-005959",
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "50690",
+                        "slug": "HN-MA-010142",
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "46857",
+                        "slug": "HN-MA-004060",
+                        "__typename": "Building"
+                    }
+                ],
+                "nearbyResults": [],
+                "__typename": "BuildingSearchResult"
+            }
+        }
+    },
+    {
+        "data": {
+            "buildingSearch": {
+                "pageSize": 15,
+                "totalPages": 2,
+                "nextPage": 2,
+                "prevPage": null,
+                "totalCount": 22,
+                "nearbyCount": 0,
+                "__typename": "BuildingSearchResult"
+            }
+        }
+    },
+    {
+        "data": {
+            "buildingSearch": {
+                "pageSize": 15,
+                "currentPage": 1,
+                "totalPages": 2,
+                "nextPage": 2,
+                "prevPage": null,
+                "totalCount": 22,
+                "nearbyCount": 0,
+                "allResults": [
+                    {
+                        "id": "46387",
+                        "slug": "HN-MA-003655",
+                        "name": "Weldon Gardens",
+                        "location": {
+                            "latitude": 42.4198663,
+                            "longitude": -71.1099249,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "45837",
+                        "slug": "HN-MA-003751",
+                        "name": "Sphere Apartments",
+                        "location": {
+                            "latitude": 42.400758,
+                            "longitude": -71.1120311,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "35077",
+                        "slug": "HN-MA-018051",
+                        "name": "Caritas Communities: Medford Locations",
+                        "location": {
+                            "latitude": 42.4188576,
+                            "longitude": -71.1081714,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "46394",
+                        "slug": "HN-MA-018391",
+                        "name": "Phillips Apartments ",
+                        "location": {
+                            "latitude": 42.4204309,
+                            "longitude": -71.1310609,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "43753",
+                        "slug": "HN-MA-007148",
+                        "name": "Walkling Court",
+                        "location": {
+                            "latitude": 42.4168017,
+                            "longitude": -71.1248143,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "48361",
+                        "slug": "HN-MA-004950",
+                        "name": "RE150",
+                        "location": {
+                            "latitude": 42.4094274,
+                            "longitude": -71.0758689,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "42387",
+                        "slug": "HN-MA-003518",
+                        "name": "1000 Southern Artery Senior Center",
+                        "location": {
+                            "latitude": 42.2414689,
+                            "longitude": -70.9817479,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "46832",
+                        "slug": "HN-MA-005054",
+                        "name": "Wellington Place",
+                        "location": {
+                            "latitude": 42.4045311,
+                            "longitude": -71.0788228,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "49708",
+                        "slug": "HN-MA-004952",
+                        "name": "Water Street Apartments",
+                        "location": {
+                            "latitude": 42.421671,
+                            "longitude": -71.1052553,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "46690",
+                        "slug": "HN-MA-010656",
+                        "name": "Lumiere Aka Residences On The Mystic",
+                        "location": {
+                            "latitude": 42.4070991,
+                            "longitude": -71.0950422,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "50690",
+                        "slug": "HN-MA-010142",
+                        "name": "Mystic Place",
+                        "location": {
+                            "latitude": 42.4100076,
+                            "longitude": -71.0951351,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "46674",
+                        "slug": "HN-MA-006548",
+                        "name": "Hillside School",
+                        "location": {
+                            "latitude": 42.4109868,
+                            "longitude": -71.1230811,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "46388",
+                        "slug": "HN-MA-018392",
+                        "name": "Willis Ave ",
+                        "location": null,
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "49280",
+                        "slug": "HN-MA-006549",
+                        "name": "Saltonstall Apartments",
+                        "location": {
+                            "latitude": 42.4161783,
+                            "longitude": -71.1051715,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "45404",
+                        "slug": "HN-MA-004756",
+                        "name": "Riverside Towers",
+                        "location": {
+                            "latitude": 42.4158063,
+                            "longitude": -71.1060909,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "46380",
+                        "slug": "HN-MA-018389",
+                        "name": "Doherty Apartments",
+                        "location": {
+                            "latitude": 42.42402149999999,
+                            "longitude": -71.0903427,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "50209",
+                        "slug": "HN-MA-018954",
+                        "name": "703 Fellsway West",
+                        "location": {
+                            "latitude": 42.4336663,
+                            "longitude": -71.10077319999999,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "46665",
+                        "slug": "HN-MA-010553",
+                        "name": "Windsor Mystic River",
+                        "location": null,
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "46857",
+                        "slug": "HN-MA-004060",
+                        "name": "Modera by Mill Creek",
+                        "location": {
+                            "latitude": 42.4055134,
+                            "longitude": -71.0733619,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "46830",
+                        "slug": "HN-MA-006152",
+                        "name": "75SL (Station Landing)",
+                        "location": {
+                            "latitude": 42.4031369,
+                            "longitude": -71.0815732,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "46392",
+                        "slug": "HN-MA-018390",
+                        "name": "Tempone Apartments ",
+                        "location": {
+                            "latitude": 42.4185764,
+                            "longitude": -71.12846669999999,
+                            "__typename": "Coordinates"
+                        },
+                        "__typename": "Building"
+                    },
+                    {
+                        "id": "46393",
+                        "slug": "HN-MA-005959",
+                        "name": "LaPrise Village",
+                        "location": null,
+                        "__typename": "Building"
+                    }
+                ],
+                "allNearbyResults": [],
+                "__typename": "BuildingSearchResult"
+            }
+        }
+    }
+]
