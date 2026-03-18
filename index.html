@@ -20,6 +20,17 @@
             max-height: 90vh;
             overflow-y: auto;
         }
+
+        /* Custom Title Styling */
+        .control-title {
+            text-align: center;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #ccc;
+            max-width: 250px;
+        }
     </style>
 </head>
 <body>
@@ -63,6 +74,14 @@
 
     // 6. Initialize Layer Control Box
     const layerControl = L.control.layers(null, {}, { collapsed: false }).addTo(map);
+
+    // --- ADD CUSTOM TITLE TO LAYER CONTROL ---
+    const controlContainer = layerControl.getContainer();
+    const titleDiv = document.createElement('div');
+    titleDiv.className = 'control-title';
+    titleDiv.innerHTML = "Affordable Housing and Public (Federal/State) Housing Location";
+    controlContainer.prepend(titleDiv);
+    // -----------------------------------------
 
     // 7. Reusable function to fetch and map the custom JSON files
     function loadCityHousingData(filePath, layerName, markerColor) {
@@ -111,7 +130,7 @@
     // 8. Load each of the uploaded JSON files from the data directory
     loadCityHousingData('data/Everett.json', 'Everett', '#e6194b');    
     loadCityHousingData('data/Malden.json', 'Malden', '#911eb4');      
-    loadCityHousingData('data/Medford.json', 'Medford', '#f58231');    
+    loadCityHousingData('data/Medford.json', 'Medford', '#069494');    
     loadCityHousingData('data/Somerville.json', 'Somerville', '#4363d8'); 
 
 </script>
