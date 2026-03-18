@@ -17,7 +17,7 @@
             padding: 10px;
             border-radius: 5px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            max-height: 90vh;
+            max-height: 80vh;
             overflow-y: auto;
         }
 
@@ -31,22 +31,26 @@
             max-width: 250px;
         }
 
-        /* --- NEW: SEARCH BAR STYLING --- */
+        /* --- UPDATED: RESPONSIVE SEARCH BAR --- */
         #search-container {
             position: absolute;
             top: 15px;
-            left: 50px; /* Moved over slightly to avoid the zoom controls */
-            z-index: 1000; /* Keeps it above the map tiles */
+            left: 50px; 
+            z-index: 1000; 
             background: white;
             padding: 8px;
             border-radius: 5px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.3);
             display: flex;
+            flex-wrap: wrap; /* Allows wrapping on very small screens */
             gap: 5px;
+            max-width: calc(100vw - 70px);
+            box-sizing: border-box;
         }
         #search-container input {
             padding: 8px;
-            width: 250px;
+            width: 220px;
+            flex-grow: 1;
             border: 1px solid #ccc;
             border-radius: 3px;
             font-size: 14px;
@@ -60,12 +64,13 @@
             font-size: 14px;
             cursor: pointer;
             font-weight: bold;
+            flex-grow: 1;
         }
-        #search-container button:hover {
-            background: #2471a3;
-        }
+        #search-container button:hover { background: #2471a3; }
+        .clear-btn { background: #95a5a6 !important; }
+        .clear-btn:hover { background: #7f8c8d !important; }
 
-        /* --- MODAL POPUP STYLING --- */
+        /* --- UPDATED: RESPONSIVE MODAL POPUP --- */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -81,20 +86,24 @@
 
         .modal-content {
             background: white;
-            padding: 30px;
+            padding: 25px;
             border-radius: 8px;
+            width: 90%; /* Ensures it doesn't touch phone screen edges */
             max-width: 600px;
+            max-height: 90vh; /* Allows scrolling on small screens */
+            overflow-y: auto; /* Adds scrollbar if text is too long */
+            box-sizing: border-box;
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
             line-height: 1.6;
         }
 
-        .modal-content h2 { margin-top: 0; color: #2c3e50; font-size: 24px; }
-        .modal-content h3 { margin-bottom: 10px; color: #34495e; border-bottom: 1px solid #eee; padding-bottom: 5px; font-size: 18px; }
-        .modal-content p { font-size: 15px; color: #444; margin-bottom: 15px; }
+        .modal-content h2 { margin-top: 0; color: #2c3e50; font-size: 22px; }
+        .modal-content h3 { margin-bottom: 10px; color: #34495e; border-bottom: 1px solid #eee; padding-bottom: 5px; font-size: 17px; }
+        .modal-content p { font-size: 14px; color: #444; margin-bottom: 15px; }
         .modal-content a { color: #0077FF; text-decoration: none; }
         .modal-content a:hover { text-decoration: underline; }
         
-        .legend-list { list-style: none; padding: 0; margin-bottom: 20px; font-size: 15px; color: #444; }
+        .legend-list { list-style: none; padding: 0; margin-bottom: 20px; font-size: 14px; color: #444; }
         .legend-list li { margin-bottom: 8px; display: flex; align-items: center; }
         
         .color-scale { display: flex; flex-direction: column; margin-left: 20px; margin-top: 10px; margin-bottom: 20px;}
@@ -105,7 +114,7 @@
             background: #f8f9fa;
             border-left: 4px solid #e74c3c;
             padding: 12px 15px;
-            font-size: 14px;
+            font-size: 13px;
             color: #555;
             font-style: italic;
             margin-bottom: 20px;
@@ -154,12 +163,14 @@
             <b>Methodological Caveat:</b> Federal poverty thresholds are uniform across the contiguous United States and do not adjust for regional cost-of-living disparities. Because the Greater Boston metropolitan area requires disproportionately high expenditures for housing and essentials, the official poverty measure likely underrepresents true economic hardship. Many families residing outside the heavily shaded tracts may still experience profound financial instability and qualify for programmatic support.
         </div>
         
-        <button class="start-btn" onclick="startMap()">Initialize Map</button>
+        <button id="initMapBtn" class="start-btn">Initialize Map</button>
     </div>
 </div>
 
-<div id="search-container" style="display: none;"> <input type="text" id="addressInput" placeholder="Search an address...">
+<div id="search-container" style="display: none;">
+    <input type="text" id="addressInput" placeholder="Search an address...">
     <button onclick="geocodeAddress()">Search</button>
+    <button class="clear-btn" onclick="clearSearch()">Clear</button>
 </div>
 
 <div id="map"></div>
@@ -173,11 +184,12 @@
     const radiusMeters = 3 * 1609.344; // 3 miles in meters
     let map;
     let mapInitialized = false;
-    let searchMarker = null; // Variable to hold the user's searched location
+    let searchMarker = null; 
 
-    function startMap() {
+    // Initialize Map Trigger
+    document.getElementById('initMapBtn').addEventListener('click', function() {
         document.getElementById('welcomeModal').style.display = 'none';
-        document.getElementById('search-container').style.display = 'flex'; // Reveal search bar
+        document.getElementById('search-container').style.display = 'flex'; 
         
         if (mapInitialized) return;
         mapInitialized = true;
@@ -185,45 +197,39 @@
         setTimeout(() => {
             buildLeafletMap();
         }, 100);
-    }
+    });
 
-    // --- NEW: ADDRESS SEARCH LOGIC ---
+    // Address Search Logic
     function geocodeAddress() {
         const input = document.getElementById('addressInput').value;
         if (!input) return;
 
-        // We append "MA" to the search query behind the scenes to prioritize local results
         const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(input + ', MA')}`;
 
         fetch(url)
             .then(response => response.json())
             .then(data => {
                 if (data.length > 0) {
-                    // Extract coordinates from the first search result
                     const resultLat = parseFloat(data[0].lat);
                     const resultLng = parseFloat(data[0].lon);
                     const resultLatLng = L.latLng(resultLat, resultLng);
                     const centerLatLng = L.latLng(lat, lng);
 
-                    // Calculate distance using Leaflet's built-in tool
                     const distMeters = map.distance(centerLatLng, resultLatLng);
 
-                    // Remove previous search marker if one exists
                     if (searchMarker) {
                         map.removeLayer(searchMarker);
                     }
 
-                    // Determine eligibility and formatting based on distance
                     let popupMsg, markerColor;
                     if (distMeters <= radiusMeters) {
                         popupMsg = `<h4 style="margin:0; color:green;">✅ Inside 3-Mile Service Area</h4><p style="margin-top:5px;">This address is eligible.</p>`;
-                        markerColor = '#27ae60'; // Green
+                        markerColor = '#27ae60'; 
                     } else {
                         popupMsg = `<h4 style="margin:0; color:red;">❌ Outside 3-Mile Service Area</h4><p style="margin-top:5px;">This address is too far.</p>`;
-                        markerColor = '#c0392b'; // Red
+                        markerColor = '#c0392b'; 
                     }
 
-                    // Create and drop the new marker
                     searchMarker = L.circleMarker(resultLatLng, {
                         radius: 8,
                         fillColor: markerColor,
@@ -232,11 +238,9 @@
                         fillOpacity: 1
                     }).addTo(map);
 
-                    // Bind popup with the clean address name and eligibility message
                     const cleanAddress = data[0].display_name.split(',').slice(0, 3).join(',');
                     searchMarker.bindPopup(`<b>${cleanAddress}</b><br><hr style="margin:5px 0;">${popupMsg}`).openPopup();
                     
-                    // Pan the map to the searched location
                     map.setView(resultLatLng, 15);
                 } else {
                     alert("Address not found. Try adding the city or ZIP code.");
@@ -245,7 +249,16 @@
             .catch(error => console.error('Geocoding error:', error));
     }
 
-    // Allow user to hit "Enter" key in the search box
+    // Clear Search Logic
+    function clearSearch() {
+        document.getElementById('addressInput').value = '';
+        if (searchMarker) {
+            map.removeLayer(searchMarker);
+            searchMarker = null;
+        }
+        map.setView([lat, lng], 13);
+    }
+
     document.getElementById("addressInput").addEventListener("keypress", function(event) {
         if (event.key === "Enter") {
             event.preventDefault();
@@ -253,6 +266,7 @@
         }
     });
 
+    // Map Building Logic
     function buildLeafletMap() {
         map = L.map('map', { zoomControl: false }).setView([lat, lng], 13);
         map.invalidateSize();
@@ -331,7 +345,7 @@
             `;
         });
 
-        childPovertyTracts.addTo(map);
+        // REmoved .addTo(map) so it doesn't display on load
         layerControl.addOverlay(childPovertyTracts, `<span style='color:#E31A1C; font-weight:bold;'>■</span> Children in Poverty (Tracts)`);
 
         // --- LOCAL HOUSING DATA ---
