@@ -78,4 +78,210 @@
         }
 
         .start-btn {
-            display:
+            display: block;
+            width: 100%;
+            padding: 14px;
+            background: #2980b9;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background 0.2s;
+        }
+        .start-btn:hover { background: #2471a3; }
+    </style>
+</head>
+<body>
+
+<div id="welcomeModal" class="modal-overlay">
+    <div class="modal-content">
+        <h2>Outreach Planning Map</h2>
+        <p>This geospatial tool is designed to identify localized concentrations of families who may be eligible for Early Head Start interventions.</p>
+        
+        <h3>Map Symbols</h3>
+        <ul class="legend-list">
+            <li><b>Child Poverty Density (Census Tracts):</b> The choropleth shading indicates the absolute number of children (under 18) living below the federal poverty threshold within each census tract.</li>
+        </ul>
+        <div class="color-scale">
+            <div class="color-item"><div class="color-box" style="background: #FED976;"></div> 11 - 50 Children</div>
+            <div class="color-item"><div class="color-box" style="background: #FD8D3C;"></div> 51 - 100 Children</div>
+            <div class="color-item"><div class="color-box" style="background: #E31A1C;"></div> 101 - 250 Children</div>
+            <div class="color-item"><div class="color-box" style="background: #800026;"></div> 250+ Children</div>
+        </div>
+
+        <h3>Data Methodology & Sources</h3>
+        <p><b>Census Tract Poverty Data:</b> The demographic shading is dynamically sourced from the <b>2024 American Community Survey (ACS) 5-Year Estimates</b>. The ACS is an ongoing, nationwide survey conducted by the U.S. Census Bureau that provides highly detailed demographic, social, and economic data between decennial censuses.</p>
+        <p>Specifically, this map aggregates data from <a href="https://data.census.gov/table?q=B17020" target="_blank">Table B17020: Poverty Status in the Past 12 Months by Sex by Age</a>, calculating the total number of children under 18 living in households with incomes strictly below the official federal poverty measure.</p>
+        
+        <div class="caveat-box">
+            <b>Methodological Caveat:</b> Federal poverty thresholds are uniform across the contiguous United States and do not adjust for regional cost-of-living disparities. Because the Greater Boston metropolitan area requires disproportionately high expenditures for housing and essentials, the official poverty measure likely underrepresents true economic hardship. Many families residing outside the heavily shaded tracts may still experience profound financial instability and qualify for programmatic support.
+        </div>
+        
+        <button id="initMapBtn" class="start-btn">Initialize Map</button>
+    </div>
+</div>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script src="https://unpkg.com/esri-leaflet@3.0.12/dist/esri-leaflet.js"></script>
+
+<script>
+    // 1. Define the center coordinates globally
+    const lat = 42.39676629287921;
+    const lng = -71.1031099204534;
+    let map;
+
+    // 2. Attach Event Listener to the Button
+    document.getElementById('initMapBtn').addEventListener('click', function() {
+        // Hide the modal completely
+        document.getElementById('welcomeModal').style.display = 'none';
+        
+        // Wait 100 milliseconds for the browser to redraw the empty screen, then build map
+        setTimeout(buildLeafletMap, 100);
+    });
+
+    // 3. Map Building Logic
+    function buildLeafletMap() {
+        try {
+            // Initialize the map
+            map = L.map('map', { zoomControl: false }).setView([lat, lng], 13);
+            
+            // Force Leaflet to recalculate the container size
+            map.invalidateSize();
+            
+            // Add zoom control to top right 
+            L.control.zoom({ position: 'topright' }).addTo(map);
+
+            // Add MassGIS Basemaps
+            L.tileLayer('https://tiles.arcgis.com/tiles/hGdibHYSPO59RG1h/arcgis/rest/services/MassGISBasemap/MapServer/tile/{z}/{y}/{x}', {
+                maxZoom: 19,
+                attribution: '&copy; MassGIS'
+            }).addTo(map);
+
+            L.tileLayer('https://tiles.arcgis.com/tiles/hGdibHYSPO59RG1h/arcgis/rest/services/MassGIS_Basemap_Detailed_Features/MapServer/tile/{z}/{y}/{x}', {
+                maxZoom: 19,
+                attribution: '&copy; MassGIS Detailed Features'
+            }).addTo(map);
+
+            // Create the 3-mile buffer 
+            L.circle([lat, lng], {
+                color: 'red',
+                weight: 2,
+                fillColor: 'transparent',
+                fillOpacity: 0,
+                radius: 3 * 1609.344,
+                interactive: false 
+            }).addTo(map);
+
+            // Add Center Marker
+            L.marker([lat, lng]).addTo(map)
+              .bindPopup("<b>Riverside Community Care Early Head Start</b><br>Outreach Centerpoint").openPopup();
+
+            // Initialize Layer Control Box safely
+            const layerControl = L.control.layers({}, {}, { collapsed: false, position: 'bottomright' }).addTo(map);
+
+            // Add Custom Title to Layer Control
+            const controlContainer = layerControl.getContainer();
+            if (controlContainer) {
+                const titleDiv = document.createElement('div');
+                titleDiv.className = 'control-title';
+                titleDiv.innerHTML = "Outreach Planning: Poverty Demographics & Housing";
+                controlContainer.prepend(titleDiv);
+            }
+
+            // --- CENSUS TRACT POVERTY DATA (Esri Living Atlas) ---
+            const childPovertyTracts = L.esri.featureLayer({
+                url: 'https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/ACS_Poverty_by_Age_Boundaries/FeatureServer/2',
+                style: function (feature) {
+                    const props = feature.properties;
+                    const childrenInPoverty = (props.B17020_003E || 0) + (props.B17020_004E || 0) + (props.B17020_005E || 0);
+
+                    let fillColor = '#f2f2f2'; 
+                    if (childrenInPoverty > 250) fillColor = '#800026';
+                    else if (childrenInPoverty > 100) fillColor = '#E31A1C';
+                    else if (childrenInPoverty > 50) fillColor = '#FD8D3C';
+                    else if (childrenInPoverty > 10) fillColor = '#FED976';
+
+                    return {
+                        fillColor: fillColor,
+                        weight: 1,
+                        opacity: 0.8,
+                        color: '#ffffff',
+                        fillOpacity: 0.65
+                    };
+                }
+            });
+
+            childPovertyTracts.bindPopup(function (layer) {
+                const props = layer.feature.properties;
+                const childrenInPoverty = (props.B17020_003E || 0) + (props.B17020_004E || 0) + (props.B17020_005E || 0);
+                return `
+                    <div style="font-size: 14px;">
+                        <b>Census Tract:</b> ${props.GEOID}<br>
+                        <hr style="margin: 5px 0;">
+                        <b>Total Children in Poverty:</b> <span style="color:red; font-weight:bold;">${childrenInPoverty}</span><br>
+                        <ul style="margin: 5px 0; padding-left: 20px; font-size: 12px;">
+                            <li>Under 6 years: ${props.B17020_003E || 0}</li>
+                            <li>6 to 11 years: ${props.B17020_004E || 0}</li>
+                            <li>12 to 17 years: ${props.B17020_005E || 0}</li>
+                        </ul>
+                    </div>
+                `;
+            });
+
+            childPovertyTracts.addTo(map);
+            layerControl.addOverlay(childPovertyTracts, `<span style='color:#E31A1C; font-weight:bold;'>■</span> Children in Poverty (Tracts)`);
+
+            // --- LOCAL HOUSING DATA (JSON FILES) ---
+            function loadCityHousingData(filePath, layerName, markerColor) {
+                const layerGroup = L.layerGroup();
+
+                fetch(filePath)
+                    .then(response => {
+                        if (!response.ok) throw new Error(`Could not load ${filePath}`);
+                        return response.json();
+                    })
+                    .then(data => {
+                        const targetObject = data.find(obj => obj.data && obj.data.buildingSearch && obj.data.buildingSearch.allResults);
+                        
+                        if (targetObject) {
+                            const buildings = targetObject.data.buildingSearch.allResults;
+                            buildings.forEach(building => {
+                                if (building.location && building.location.latitude && building.location.longitude) {
+                                    const marker = L.circleMarker([building.location.latitude, building.location.longitude], {
+                                        color: '#ffffff',
+                                        weight: 1.5,
+                                        fillColor: markerColor,
+                                        fillOpacity: 0.9,
+                                        radius: 6
+                                    });
+
+                                    marker.bindPopup(`<b>${building.name || "Unnamed Facility"}</b><br>City: ${layerName}<br>ID: ${building.slug || building.id}`);
+                                    layerGroup.addLayer(marker);
+                                }
+                            });
+                        }
+                    })
+                    .catch(err => console.error("Housing data fetch error:", err));
+
+                layerGroup.addTo(map);
+                layerControl.addOverlay(layerGroup, `<span style='color:${markerColor}; font-weight:bold; font-size:16px;'>●</span> ${layerName} Housing`);
+            }
+
+            // Load each of the uploaded JSON files from the data directory
+            loadCityHousingData('data/Everett.json', 'Everett', '#e6194b');    
+            loadCityHousingData('data/Malden.json', 'Malden', '#911eb4');      
+            loadCityHousingData('data/Medford.json', 'Medford', '#f58231');    
+            loadCityHousingData('data/Somerville.json', 'Somerville', '#4363d8'); 
+
+        } catch (error) {
+            console.error("Map initialization failed:", error);
+        }
+    }
+</script>
+</body>
+</html>
