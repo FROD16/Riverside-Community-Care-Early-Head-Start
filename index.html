@@ -31,6 +31,40 @@
             max-width: 250px;
         }
 
+        /* --- NEW: SEARCH BAR STYLING --- */
+        #search-container {
+            position: absolute;
+            top: 15px;
+            left: 50px; /* Moved over slightly to avoid the zoom controls */
+            z-index: 1000; /* Keeps it above the map tiles */
+            background: white;
+            padding: 8px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            display: flex;
+            gap: 5px;
+        }
+        #search-container input {
+            padding: 8px;
+            width: 250px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            font-size: 14px;
+        }
+        #search-container button {
+            padding: 8px 12px;
+            background: #2980b9;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            font-size: 14px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        #search-container button:hover {
+            background: #2471a3;
+        }
+
         /* --- MODAL POPUP STYLING --- */
         .modal-overlay {
             position: fixed;
@@ -124,6 +158,10 @@
     </div>
 </div>
 
+<div id="search-container" style="display: none;"> <input type="text" id="addressInput" placeholder="Search an address...">
+    <button onclick="geocodeAddress()">Search</button>
+</div>
+
 <div id="map"></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
@@ -132,30 +170,91 @@
 <script>
     const lat = 42.39676629287921;
     const lng = -71.1031099204534;
+    const radiusMeters = 3 * 1609.344; // 3 miles in meters
     let map;
     let mapInitialized = false;
+    let searchMarker = null; // Variable to hold the user's searched location
 
-    // This function is directly triggered by the button click
     function startMap() {
-        // 1. Hide the modal
         document.getElementById('welcomeModal').style.display = 'none';
+        document.getElementById('search-container').style.display = 'flex'; // Reveal search bar
         
-        // 2. Prevent the map from being built twice if the user clicks fast
         if (mapInitialized) return;
         mapInitialized = true;
 
-        // 3. Give the browser a tiny delay to update the CSS, then build the map
         setTimeout(() => {
             buildLeafletMap();
         }, 100);
     }
 
-    // This holds all the actual mapping logic
+    // --- NEW: ADDRESS SEARCH LOGIC ---
+    function geocodeAddress() {
+        const input = document.getElementById('addressInput').value;
+        if (!input) return;
+
+        // We append "MA" to the search query behind the scenes to prioritize local results
+        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(input + ', MA')}`;
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                if (data.length > 0) {
+                    // Extract coordinates from the first search result
+                    const resultLat = parseFloat(data[0].lat);
+                    const resultLng = parseFloat(data[0].lon);
+                    const resultLatLng = L.latLng(resultLat, resultLng);
+                    const centerLatLng = L.latLng(lat, lng);
+
+                    // Calculate distance using Leaflet's built-in tool
+                    const distMeters = map.distance(centerLatLng, resultLatLng);
+
+                    // Remove previous search marker if one exists
+                    if (searchMarker) {
+                        map.removeLayer(searchMarker);
+                    }
+
+                    // Determine eligibility and formatting based on distance
+                    let popupMsg, markerColor;
+                    if (distMeters <= radiusMeters) {
+                        popupMsg = `<h4 style="margin:0; color:green;">✅ Inside 3-Mile Service Area</h4><p style="margin-top:5px;">This address is eligible.</p>`;
+                        markerColor = '#27ae60'; // Green
+                    } else {
+                        popupMsg = `<h4 style="margin:0; color:red;">❌ Outside 3-Mile Service Area</h4><p style="margin-top:5px;">This address is too far.</p>`;
+                        markerColor = '#c0392b'; // Red
+                    }
+
+                    // Create and drop the new marker
+                    searchMarker = L.circleMarker(resultLatLng, {
+                        radius: 8,
+                        fillColor: markerColor,
+                        color: '#ffffff',
+                        weight: 2,
+                        fillOpacity: 1
+                    }).addTo(map);
+
+                    // Bind popup with the clean address name and eligibility message
+                    const cleanAddress = data[0].display_name.split(',').slice(0, 3).join(',');
+                    searchMarker.bindPopup(`<b>${cleanAddress}</b><br><hr style="margin:5px 0;">${popupMsg}`).openPopup();
+                    
+                    // Pan the map to the searched location
+                    map.setView(resultLatLng, 15);
+                } else {
+                    alert("Address not found. Try adding the city or ZIP code.");
+                }
+            })
+            .catch(error => console.error('Geocoding error:', error));
+    }
+
+    // Allow user to hit "Enter" key in the search box
+    document.getElementById("addressInput").addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            geocodeAddress();
+        }
+    });
+
     function buildLeafletMap() {
-        // Initialize the map
         map = L.map('map', { zoomControl: false }).setView([lat, lng], 13);
-        
-        // Crucial fix: Forces Leaflet to recalculate the size of the window now that the modal is gone
         map.invalidateSize();
         
         L.control.zoom({ position: 'topright' }).addTo(map);
@@ -175,7 +274,7 @@
             weight: 2,
             fillColor: 'transparent',
             fillOpacity: 0,
-            radius: 3 * 1609.344,
+            radius: radiusMeters,
             interactive: false 
         }).addTo(map);
 
