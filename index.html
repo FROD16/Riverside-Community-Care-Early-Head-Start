@@ -73,50 +73,44 @@
     L.marker([lat, lng]).addTo(map)
       .bindPopup("<b>Riverside Community Care Early Head Start</b><br>Outreach Centerpoint").openPopup();
 
-    // 6. Initialize Layer Control Box
-    const layerControl = L.control.layers(null, {}, { collapsed: false }).addTo(map);
+    // 6. Initialize Layer Control Box safely using empty objects {} instead of null
+    const layerControl = L.control.layers({}, {}, { collapsed: false }).addTo(map);
 
-    // --- ADD CUSTOM TITLE TO LAYER CONTROL ---
+    // --- ADD CUSTOM TITLE TO LAYER CONTROL SAFELY ---
     const controlContainer = layerControl.getContainer();
-    const titleDiv = document.createElement('div');
-    titleDiv.className = 'control-title';
-    titleDiv.innerHTML = "Outreach Planning: Poverty Demographics & Housing";
-    controlContainer.prepend(titleDiv);
-    // -----------------------------------------
+    if (controlContainer) {
+        const titleDiv = document.createElement('div');
+        titleDiv.className = 'control-title';
+        titleDiv.innerHTML = "Outreach Planning: Poverty Demographics & Housing";
+        controlContainer.prepend(titleDiv);
+    }
 
-    // --- NEW: CENSUS TRACT POVERTY DATA (Esri Living Atlas) ---
-    // Queries the live ACS Poverty Status by Age database (Tract Layer is index 2)
+    // --- CENSUS TRACT POVERTY DATA (Esri Living Atlas) ---
     const childPovertyTracts = L.esri.featureLayer({
         url: 'https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/ACS_Poverty_by_Age_Boundaries/FeatureServer/2',
-        where: "STATE = '25'", // Filter to Massachusetts to speed up rendering
         style: function (feature) {
             const props = feature.properties;
             
             // Sum up the poverty counts for the three age brackets under 18
-            // B17020_003E = Under 6 years
-            // B17020_004E = 6 to 11 years
-            // B17020_005E = 12 to 17 years
             const childrenInPoverty = (props.B17020_003E || 0) + (props.B17020_004E || 0) + (props.B17020_005E || 0);
 
             // Determine the color shade based on poverty count
-            let fillColor;
-            if (childrenInPoverty > 250) fillColor = '#800026';       // Dark Red (Highest)
-            else if (childrenInPoverty > 100) fillColor = '#E31A1C';  // Red
-            else if (childrenInPoverty > 50) fillColor = '#FD8D3C';   // Orange
-            else if (childrenInPoverty > 10) fillColor = '#FED976';   // Yellow
-            else fillColor = '#f2f2f2';                               // Gray (Lowest/None)
+            let fillColor = '#f2f2f2'; // Default Gray
+            if (childrenInPoverty > 250) fillColor = '#800026';
+            else if (childrenInPoverty > 100) fillColor = '#E31A1C';
+            else if (childrenInPoverty > 50) fillColor = '#FD8D3C';
+            else if (childrenInPoverty > 10) fillColor = '#FED976';
 
             return {
                 fillColor: fillColor,
                 weight: 1,
                 opacity: 0.8,
-                color: '#ffffff', // White tract borders
+                color: '#ffffff',
                 fillOpacity: 0.65
             };
         }
     });
 
-    // Add interactive popups to the tracts
     childPovertyTracts.bindPopup(function (layer) {
         const props = layer.feature.properties;
         const childrenInPoverty = (props.B17020_003E || 0) + (props.B17020_004E || 0) + (props.B17020_005E || 0);
@@ -134,7 +128,6 @@
         `;
     });
 
-    // Add it to map and to the legend control box
     childPovertyTracts.addTo(map);
     layerControl.addOverlay(childPovertyTracts, `<span style='color:#E31A1C; font-weight:bold;'>■</span> Children in Poverty (Tracts)`);
 
@@ -148,4 +141,38 @@
                 return response.json();
             })
             .then(data => {
-                const targetObject = data.find(obj => obj.data && obj.data.building
+                const targetObject = data.find(obj => obj.data && obj.data.buildingSearch && obj.data.buildingSearch.allResults);
+                
+                if (targetObject) {
+                    const buildings = targetObject.data.buildingSearch.allResults;
+                    buildings.forEach(building => {
+                        if (building.location && building.location.latitude && building.location.longitude) {
+                            const marker = L.circleMarker([building.location.latitude, building.location.longitude], {
+                                color: '#ffffff',
+                                weight: 1.5,
+                                fillColor: markerColor,
+                                fillOpacity: 0.9,
+                                radius: 6
+                            });
+
+                            marker.bindPopup(`<b>${building.name || "Unnamed Facility"}</b><br>City: ${layerName}<br>ID: ${building.slug || building.id}`);
+                            layerGroup.addLayer(marker);
+                        }
+                    });
+                }
+            })
+            .catch(err => console.error(err));
+
+        layerGroup.addTo(map);
+        layerControl.addOverlay(layerGroup, `<span style='color:${markerColor}; font-weight:bold; font-size:16px;'>●</span> ${layerName} Housing`);
+    }
+
+    // Load each of the uploaded JSON files from the data directory
+    loadCityHousingData('data/Everett.json', 'Everett', '#e6194b');    
+    loadCityHousingData('data/Malden.json', 'Malden', '#911eb4');      
+    loadCityHousingData('data/Medford.json', 'Medford', '#f58231');    
+    loadCityHousingData('data/Somerville.json', 'Somerville', '#4363d8'); 
+
+</script>
+</body>
+</html>
