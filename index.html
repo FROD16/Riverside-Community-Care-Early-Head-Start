@@ -9,7 +9,7 @@
     
     <style>
         body { margin: 0; padding: 0; font-family: sans-serif; }
-        #map { width: 100vw; height: 100vh; }
+        #map { width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: 1;}
         
         /* Control box styling */
         .leaflet-control-layers {
@@ -78,50 +78,4 @@
         }
 
         .start-btn {
-            display: block;
-            width: 100%;
-            padding: 14px;
-            background: #2980b9;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 10px;
-            transition: background 0.2s;
-        }
-        .start-btn:hover { background: #2471a3; }
-    </style>
-</head>
-<body>
-
-<div id="welcomeModal" class="modal-overlay">
-    <div class="modal-content">
-        <h2>Outreach Planning Map</h2>
-        <p>This geospatial tool is designed to identify localized concentrations of families who may be eligible for Early Head Start interventions.</p>
-        
-        <h3>Map Symbols</h3>
-        <ul class="legend-list">
-            <li><b>Child Poverty Density (Census Tracts):</b> The choropleth shading indicates the absolute number of children (under 18) living below the federal poverty threshold within each census tract.</li>
-        </ul>
-        <div class="color-scale">
-            <div class="color-item"><div class="color-box" style="background: #FED976;"></div> 11 - 50 Children</div>
-            <div class="color-item"><div class="color-box" style="background: #FD8D3C;"></div> 51 - 100 Children</div>
-            <div class="color-item"><div class="color-box" style="background: #E31A1C;"></div> 101 - 250 Children</div>
-            <div class="color-item"><div class="color-box" style="background: #800026;"></div> 250+ Children</div>
-        </div>
-
-        <h3>Data Methodology & Sources</h3>
-        <p><b>Census Tract Poverty Data:</b> The demographic shading is dynamically sourced from the <b>2024 American Community Survey (ACS) 5-Year Estimates</b>. The ACS is an ongoing, nationwide survey conducted by the U.S. Census Bureau that provides highly detailed demographic, social, and economic data between decennial censuses.</p>
-        <p>Specifically, this map aggregates data from <a href="https://data.census.gov/table?q=B17020" target="_blank">Table B17020: Poverty Status in the Past 12 Months by Sex by Age</a>, calculating the total number of children under 18 living in households with incomes strictly below the official federal poverty measure.</p>
-        
-        <div class="caveat-box">
-            <b>Methodological Caveat:</b> Federal poverty thresholds are uniform across the contiguous United States and do not adjust for regional cost-of-living disparities. Because the Greater Boston metropolitan area requires disproportionately high expenditures for housing and essentials, the official poverty measure likely underrepresents true economic hardship. Many families residing outside the heavily shaded tracts may still experience profound financial instability and qualify for programmatic support.
-        </div>
-        
-        <button class="start-btn" onclick="startMap()">Initialize Map</button>
-    </div>
-</div>
-
-<div id="map"></div>
+            display:
