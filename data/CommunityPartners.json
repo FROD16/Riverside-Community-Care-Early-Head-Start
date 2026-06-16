@@ -1,39 +1,175 @@
 {
   "type": "FeatureCollection",
   "features": [
-    { "type": "Feature", "properties": { "organization": "ABCD Head Start", "address": "190 Nichols St, Everett, MA 02149" }, "geometry": { "type": "Point", "coordinates": [-71.0531, 42.4116] } },
-    { "type": "Feature", "properties": { "organization": "Arlington Housing Authority", "address": "4 Winslow Street, Arlington, MA 02474" }, "geometry": { "type": "Point", "coordinates": [-71.1492, 42.4168] } },
-    { "type": "Feature", "properties": { "organization": "Arthur D. Healey School", "address": "5 Meacham Street, Somerville, MA 02145" }, "geometry": { "type": "Point", "coordinates": [-71.1009, 42.3942] } },
-    { "type": "Feature", "properties": { "organization": "Baldwin Community Center", "address": "20 Sacramento Street, Cambridge, MA 02138" }, "geometry": { "type": "Point", "coordinates": [-71.1171, 42.3833] } },
-    { "type": "Feature", "properties": { "organization": "Boston Medical Center — SOFAR Clinic", "address": "801 Massachusetts Ave, 7th Floor, Boston, MA 02119" }, "geometry": { "type": "Point", "coordinates": [-71.0734, 42.3323] } },
-    { "type": "Feature", "properties": { "organization": "Boston Public Health Commission", "address": "1010 Massachusetts Avenue, 2nd Floor, Boston, MA 02118" }, "geometry": { "type": "Point", "coordinates": [-71.0699, 42.3292] } },
-    { "type": "Feature", "properties": { "organization": "Bridges Homeward", "address": "60 Gore Street, Cambridge, MA 02141" }, "geometry": { "type": "Point", "coordinates": [-71.0827, 42.3707] } },
-    { "type": "Feature", "properties": { "organization": "Bright Futures Adoption Center", "address": "971 Main Street, Lancaster, MA 01523" }, "geometry": { "type": "Point", "coordinates": [-71.6841, 42.4452] } },
-    { "type": "Feature", "properties": { "organization": "CHA — Behavioral Health Integration", "address": "1493 Cambridge Street, Cambridge, MA 02139" }, "geometry": { "type": "Point", "coordinates": [-71.1026, 42.3740] } },
-    { "type": "Feature", "properties": { "organization": "CHA — Pathways to Family Success", "address": "1493 Cambridge Street, Cambridge, MA 02139" }, "geometry": { "type": "Point", "coordinates": [-71.1026, 42.3740] } },
-    { "type": "Feature", "properties": { "organization": "CHA — Windsor Street Care Center", "address": "119 Windsor Street, Cambridge, MA 02139" }, "geometry": { "type": "Point", "coordinates": [-71.0964, 42.3653] } },
-    { "type": "Feature", "properties": { "organization": "Cambridge Housing Authority", "address": "362 Green Street, Cambridge, MA 02139" }, "geometry": { "type": "Point", "coordinates": [-71.1054, 42.3648] } },
-    { "type": "Feature", "properties": { "organization": "Cambridge Police / Clinical Support Unit", "address": "125 Sixth Street, Cambridge, MA 02142" }, "geometry": { "type": "Point", "coordinates": [-71.0832, 42.3664] } },
-    { "type": "Feature", "properties": { "organization": "Cambridge Women’s Center", "address": "46 Pleasant Street, Cambridge, MA 02139" }, "geometry": { "type": "Point", "coordinates": [-71.1042, 42.3638] } },
-    { "type": "Feature", "properties": { "organization": "CAPBM / CAPIC Head Start", "address": "100 Everett Avenue, #14, Chelsea, MA 02150" }, "geometry": { "type": "Point", "coordinates": [-71.0422, 42.3951] } },
-    { "type": "Feature", "properties": { "organization": "City of Medford — Social Services", "address": "85 George P. Hassett Drive, Medford, MA 02155" }, "geometry": { "type": "Point", "coordinates": [-71.1062, 42.4184] } },
-    { "type": "Feature", "properties": { "organization": "City of Somerville — Health & Human Services", "address": "50 Evergreen Avenue, Somerville, MA 02145" }, "geometry": { "type": "Point", "coordinates": [-71.0984, 42.3923] } },
-    { "type": "Feature", "properties": { "organization": "Community Art Center / Port ARISE", "address": "119 Windsor Street, Cambridge, MA 02139" }, "geometry": { "type": "Point", "coordinates": [-71.0964, 42.3653] } },
-    { "type": "Feature", "properties": { "organization": "Eliot Family Resource Center", "address": "548 Broadway, Everett, MA 02149" }, "geometry": { "type": "Point", "coordinates": [-71.0558, 42.4087] } },
-    { "type": "Feature", "properties": { "organization": "Elizabeth Peabody House", "address": "275–277 Broadway, Somerville, MA 02145" }, "geometry": { "type": "Point", "coordinates": [-71.0966, 42.3888] } },
-    { "type": "Feature", "properties": { "organization": "F.O.R. Families / MA Dept of Public Health", "address": "5 Randolph Street, Canton, MA 02021" }, "geometry": { "type": "Point", "coordinates": [-71.1442, 42.1624] } },
-    { "type": "Feature", "properties": { "organization": "Hildebrand Family Self-Help Center", "address": "614 Massachusetts Avenue, Cambridge, MA 02139" }, "geometry": { "type": "Point", "coordinates": [-71.1027, 42.3649] } },
-    { "type": "Feature", "properties": { "organization": "Jewish Family & Children’s Service", "address": "1430 Main Street, Waltham, MA 02451" }, "geometry": { "type": "Point", "coordinates": [-71.2589, 42.3768] } },
-    { "type": "Feature", "properties": { "organization": "Medford Family Network", "address": "489 Winthrop Street, Medford, MA 02155" }, "geometry": { "type": "Point", "coordinates": [-71.1301, 42.4287] } },
-    { "type": "Feature", "properties": { "organization": "Medford Housing Authority", "address": "121 Riverside Avenue, Medford, MA 02155" }, "geometry": { "type": "Point", "coordinates": [-71.1018, 42.4186] } },
-    { "type": "Feature", "properties": { "organization": "Medford Police Department / Family Services", "address": "100 Main Street, Medford, MA 02155" }, "geometry": { "type": "Point", "coordinates": [-71.1093, 42.4168] } },
-    { "type": "Feature", "properties": { "organization": "Mystic Tenant Assoc. / Activity Center", "address": "530 Mystic Avenue, Somerville, MA 02145" }, "geometry": { "type": "Point", "coordinates": [-71.0954, 42.3999] } },
-    { "type": "Feature", "properties": { "organization": "Our Place Day Care Center / Salvation Army", "address": "402 Massachusetts Avenue, Cambridge, MA 02139" }, "geometry": { "type": "Point", "coordinates": [-71.1013, 42.3642] } },
-    { "type": "Feature", "properties": { "organization": "Somerville Food Security Coalition", "address": "50 Evergreen Avenue, Somerville, MA 02145" }, "geometry": { "type": "Point", "coordinates": [-71.0984, 42.3923] } },
-    { "type": "Feature", "properties": { "organization": "Somerville Housing Authority", "address": "30 Memorial Road, Somerville, MA 02145" }, "geometry": { "type": "Point", "coordinates": [-71.0877, 42.3986] } },
-    { "type": "Feature", "properties": { "organization": "Somerville Police Department / Family Services", "address": "220 Washington Street, Somerville, MA 02143" }, "geometry": { "type": "Point", "coordinates": [-71.0945, 42.3798] } },
-    { "type": "Feature", "properties": { "organization": "Town of Arlington — Resource Specialist", "address": "27 Maple Street, Arlington, MA 02476" }, "geometry": { "type": "Point", "coordinates": [-71.1578, 42.4158] } },
-    { "type": "Feature", "properties": { "organization": "Transition House", "address": "136 Bishop Allen Dr, Cambridge, MA 02139" }, "geometry": { "type": "Point", "coordinates": [-71.1018, 42.3642] } },
-    { "type": "Feature", "properties": { "organization": "WIC", "address": "120 Beacon St #202, Somerville, MA 02143" }, "geometry": { "type": "Point", "coordinates": [-71.1039, 42.3763] } }
+    {
+      "type": "Feature",
+      "properties": { "organization": "ABCD Head Start", "address": "190 Nichols St, Everett, MA 02149" },
+      "geometry": { "type": "Point", "coordinates": [-71.053648, 42.411652] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "organization": "Arlington Housing Authority", "address": "4 Winslow Street, Arlington, MA 02474" },
+      "geometry": { "type": "Point", "coordinates": [-71.1526703, 42.4163089] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "organization": "Arthur D. Healey School", "address": "5 Meacham Street, Somerville, MA 02145" },
+      "geometry": { "type": "Point", "coordinates": [-71.0957803, 42.3974104] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "organization": "Baldwin Community Center", "address": "20 Sacramento Street, Cambridge, MA 02138" },
+      "geometry": { "type": "Point", "coordinates": [-71.1178316, 42.3823760] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "organization": "Boston Medical Center — SOFAR Clinic", "address": "801 Massachusetts Ave, 7th Floor, Boston, MA 02119" },
+      "geometry": { "type": "Point", "coordinates": [-71.0736404, 42.3330467] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "organization": "Boston Public Health Commission", "address": "1010 Massachusetts Avenue, 2nd Floor, Boston, MA 02118" },
+      "geometry": { "type": "Point", "coordinates": [-71.0672225, 42.3275375] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "organization": "Bridges Homeward", "address": "60 Gore Street, Cambridge, MA 02141" },
+      "geometry": { "type": "Point", "coordinates": [-71.0803671, 42.3716010] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "organization": "Bright Futures Adoption Center", "address": "971 Main Street, Lancaster, MA 01523" },
+      "geometry": { "type": "Point", "coordinates": [-71.6734375, 42.4598477] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "organization": "CHA — Behavioral Health Integration", "address": "1493 Cambridge Street, Cambridge, MA 02139" },
+      "geometry": { "type": "Point", "coordinates": [-71.1044036, 42.3748655] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "organization": "CHA — Pathways to Family Success", "address": "1493 Cambridge Street, Cambridge, MA 02139" },
+      "geometry": { "type": "Point", "coordinates": [-71.1044036, 42.3748655] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "organization": "CHA — Windsor Street Care Center", "address": "119 Windsor Street, Cambridge, MA 02139" },
+      "geometry": { "type": "Point", "coordinates": [-71.0966669, 42.3646897] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "organization": "Cambridge Housing Authority", "address": "362 Green Street, Cambridge, MA 02139" },
+      "geometry": { "type": "Point", "coordinates": [-71.1055374, 42.3654022] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "organization": "Cambridge Police / Clinical Support Unit", "address": "125 Sixth Street, Cambridge, MA 02142" },
+      "geometry": { "type": "Point", "coordinates": [-71.0861518, 42.3672814] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "organization": "Cambridge Women’s Center", "address": "46 Pleasant Street, Cambridge, MA 02139" },
+      "geometry": { "type": "Point", "coordinates": [-71.1083424, 42.3637105] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "organization": "CAPBM / CAPIC Head Start", "address": "100 Everett Avenue, #14, Chelsea, MA 02150" },
+      "geometry": { "type": "Point", "coordinates": [-71.0406500, 42.3941889] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "organization": "City of Medford — Social Services", "address": "85 George P. Hassett Drive, Medford, MA 02155" },
+      "geometry": { "type": "Point", "coordinates": [-71.1057948, 42.4182443] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "organization": "City of Somerville — Health & Human Services", "address": "50 Evergreen Avenue, Somerville, MA 02145" },
+      "geometry": { "type": "Point", "coordinates": [-71.0972408, 42.3917871] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "organization": "Community Art Center / Port ARISE", "address": "119 Windsor Street, Cambridge, MA 02139" },
+      "geometry": { "type": "Point", "coordinates": [-71.0966669, 42.3646897] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "organization": "Eliot Family Resource Center", "address": "548 Broadway, Everett, MA 02149" },
+      "geometry": { "type": "Point", "coordinates": [-71.0537088, 42.4111231] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "organization": "Elizabeth Peabody House", "address": "275–277 Broadway, Somerville, MA 02145" },
+      "geometry": { "type": "Point", "coordinates": [-71.095593, 42.388760] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "organization": "F.O.R. Families / MA Dept of Public Health", "address": "5 Randolph Street, Canton, MA 02021" },
+      "geometry": { "type": "Point", "coordinates": [-71.144415, 42.162590] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "organization": "Hildebrand Family Self-Help Center", "address": "614 Massachusetts Avenue, Cambridge, MA 02139" },
+      "geometry": { "type": "Point", "coordinates": [-71.102604, 42.365311] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "organization": "Jewish Family & Children’s Service", "address": "1430 Main Street, Waltham, MA 02451" },
+      "geometry": { "type": "Point", "coordinates": [-71.258902, 42.376822] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "organization": "Medford Family Network", "address": "489 Winthrop Street, Medford, MA 02155" },
+      "geometry": { "type": "Point", "coordinates": [-71.129994, 42.428612] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "organization": "Medford Housing Authority", "address": "121 Riverside Avenue, Medford, MA 02155" },
+      "geometry": { "type": "Point", "coordinates": [-71.101783, 42.418460] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "organization": "Medford Police Department / Family Services", "address": "100 Main Street, Medford, MA 02155" },
+      "geometry": { "type": "Point", "coordinates": [-71.109315, 42.416590] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "organization": "Mystic Tenant Assoc. / Activity Center", "address": "530 Mystic Avenue, Somerville, MA 02145" },
+      "geometry": { "type": "Point", "coordinates": [-71.095561, 42.399941] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "organization": "Our Place Day Care Center / Salvation Army", "address": "402 Massachusetts Avenue, Cambridge, MA 02139" },
+      "geometry": { "type": "Point", "coordinates": [-71.101340, 42.364491] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "organization": "Somerville Food Security Coalition", "address": "50 Evergreen Avenue, Somerville, MA 02145" },
+      "geometry": { "type": "Point", "coordinates": [-71.0972408, 42.3917871] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "organization": "Somerville Housing Authority", "address": "30 Memorial Road, Somerville, MA 02145" },
+      "geometry": { "type": "Point", "coordinates": [-71.087794, 42.398642] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "organization": "Somerville Police Department / Family Services", "address": "220 Washington Street, Somerville, MA 02143" },
+      "geometry": { "type": "Point", "coordinates": [-71.094580, 42.379891] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "organization": "Town of Arlington — Resource Specialist", "address": "27 Maple Street, Arlington, MA 02476" },
+      "geometry": { "type": "Point", "coordinates": [-71.157811, 42.415840] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "organization": "Transition House", "address": "136 Bishop Allen Dr, Cambridge, MA 02139" },
+      "geometry": { "type": "Point", "coordinates": [-71.101850, 42.364210] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "organization": "WIC", "address": "120 Beacon St #202, Somerville, MA 02143" },
+      "geometry": { "type": "Point", "coordinates": [-71.104085, 42.376442] }
+    }
   ]
 }
