@@ -346,7 +346,6 @@
             `;
         });
 
-        // Add to layer control box (Not drawn on map by default)
         layerControl.addOverlay(childPovertyTracts, `<span style='color:#E31A1C; font-weight:bold;'>■</span> Children in Poverty (Tracts)`);
 
         // --- LOCAL HOUSING DATA ---
@@ -366,7 +365,7 @@
                         buildings.forEach(building => {
                             if (building.location && building.location.latitude && building.location.longitude) {
                                 const marker = L.circleMarker([building.location.latitude, building.location.longitude], {
-                                    color: '#000000', // Changed to black outline for all housing points
+                                    color: '#000000', 
                                     weight: 1.5,
                                     fillColor: markerColor,
                                     fillOpacity: 0.9,
@@ -385,11 +384,42 @@
             layerControl.addOverlay(layerGroup, `<span style='color:${markerColor}; font-weight:bold; font-size:16px;'>●</span> ${layerName} Housing`);
         }
 
-        // Updated Medford color to Teal (#008080)
+        // --- COMMUNITY PARTNERS DATA ---
+        function loadCommunityPartners(filePath) {
+            fetch(filePath)
+                .then(response => {
+                    if (!response.ok) throw new Error(`Could not load ${filePath}`);
+                    return response.json();
+                })
+                .then(data => {
+                    const partnersLayer = L.geoJSON(data, {
+                        pointToLayer: function (feature, latlng) {
+                            return L.circleMarker(latlng, {
+                                radius: 7,
+                                fillColor: '#f39c12',
+                                color: '#000000',
+                                weight: 1.5,
+                                fillOpacity: 0.9
+                            });
+                        },
+                        onEachFeature: function (feature, layer) {
+                            layer.bindPopup(`<b>${feature.properties.organization}</b><br>${feature.properties.address}`);
+                        }
+                    });
+
+                    partnersLayer.addTo(map);
+                    layerControl.addOverlay(partnersLayer, `<span style='color:#f39c12; font-weight:bold; font-size:16px;'>●</span> Community Partners`);
+                })
+                .catch(err => console.error("Community Partners data fetch error:", err));
+        }
+
+        // Initialize Fetch Calls
         loadCityHousingData('data/Everett.json', 'Everett', '#e6194b');    
         loadCityHousingData('data/Malden.json', 'Malden', '#911eb4');      
         loadCityHousingData('data/Medford.json', 'Medford', '#008080');    
         loadCityHousingData('data/Somerville.json', 'Somerville', '#4363d8'); 
+        
+        loadCommunityPartners('data/CommunityPartners.json');
     }
 </script>
 </body>
