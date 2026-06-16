@@ -1,3 +1,14 @@
+This is an excellent idea for improving user experience. Adding an interactive list transforms the map from a static viewer into a proper navigational dashboard.
+
+To accomplish this, we need to make three main updates to your code:
+
+1. **CSS Flexbox Layout:** We will split the screen so the sidebar takes up a fixed width on the left (e.g., 320px), and the map fills the remaining space. We will also nudge your search bar to the right so it doesn't overlap the new sidebar.
+2. **Sidebar HTML:** We will add a container for the list.
+3. **Map Logic (`onEachFeature`):** As Leaflet reads each community partner from your JSON file, we will dynamically generate a clickable list item for it. We'll use Leaflet's `map.flyTo()` method to create a smooth, animated zoom to level `16` (a standard neighborhood scale) and trigger the marker's popup.
+
+Here is your updated `index.html`.
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,8 +19,62 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
     
     <style>
-        body { margin: 0; padding: 0; font-family: sans-serif; overflow: hidden; }
-        #map { width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: 1; }
+        /* --- UPDATED: FLEXBOX SPLIT-SCREEN LAYOUT --- */
+        body { 
+            margin: 0; 
+            padding: 0; 
+            font-family: sans-serif; 
+            overflow: hidden; 
+            display: flex; /* Creates the side-by-side layout */
+            height: 100vh;
+        }
+        
+        #sidebar {
+            width: 320px;
+            background: #f8f9fa;
+            border-right: 1px solid #ccc;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #sidebar-header {
+            padding: 15px;
+            background: #2c3e50;
+            color: white;
+        }
+
+        #sidebar-header h3 {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        #partnerList {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            overflow-y: auto; /* Allows scrolling if list gets too long */
+            flex-grow: 1;
+        }
+
+        .partner-item {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background 0.2s;
+            line-height: 1.4;
+        }
+
+        .partner-item:hover {
+            background: #e9ecef;
+        }
+
+        #map { 
+            flex-grow: 1; /* Map takes up remaining width */
+            position: relative; 
+            z-index: 1; 
+        }
         
         /* Control box styling */
         .leaflet-control-layers {
@@ -35,7 +100,7 @@
         #search-container {
             position: absolute;
             top: 15px;
-            left: 50px; 
+            left: 340px; /* UPDATED: Shifted right to clear the new 320px sidebar */
             z-index: 1000; 
             background: white;
             padding: 8px;
@@ -44,7 +109,7 @@
             display: flex;
             flex-wrap: wrap; 
             gap: 5px;
-            max-width: calc(100vw - 70px);
+            max-width: calc(100vw - 360px);
             box-sizing: border-box;
         }
         #search-container input {
@@ -167,6 +232,14 @@
     </div>
 </div>
 
+<div id="sidebar" style="display: none;">
+    <div id="sidebar-header">
+        <h3>Community Partners</h3>
+    </div>
+    <ul id="partnerList">
+        </ul>
+</div>
+
 <div id="search-container" style="display: none;">
     <input type="text" id="addressInput" placeholder="Search an address...">
     <button onclick="geocodeAddress()">Search</button>
@@ -190,6 +263,7 @@
     document.getElementById('initMapBtn').addEventListener('click', function() {
         document.getElementById('welcomeModal').style.display = 'none';
         document.getElementById('search-container').style.display = 'flex'; 
+        document.getElementById('sidebar').style.display = 'flex'; // Unhide sidebar
         
         if (mapInitialized) return;
         mapInitialized = true;
@@ -241,7 +315,7 @@
                     const cleanAddress = data[0].display_name.split(',').slice(0, 3).join(',');
                     searchMarker.bindPopup(`<b>${cleanAddress}</b><br><hr style="margin:5px 0;">${popupMsg}`).openPopup();
                     
-                    map.setView(resultLatLng, 15);
+                    map.flyTo(resultLatLng, 15);
                 } else {
                     alert("Address not found. Try adding the city or ZIP code.");
                 }
@@ -256,7 +330,7 @@
             map.removeLayer(searchMarker);
             searchMarker = null;
         }
-        map.setView([lat, lng], 13);
+        map.flyTo([lat, lng], 13);
     }
 
     document.getElementById("addressInput").addEventListener("keypress", function(event) {
@@ -308,7 +382,7 @@
         // --- CENSUS TRACT POVERTY DATA ---
         const childPovertyTracts = L.esri.featureLayer({
             url: 'https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/ACS_Poverty_by_Age_Boundaries/FeatureServer/2',
-            where: "GEOID LIKE '25%'", // Only query Massachusetts tracts to improve performance
+            where: "GEOID LIKE '25%'", 
             style: function (feature) {
                 const props = feature.properties;
                 const childrenInPoverty = (props.B17020_003E || 0) + (props.B17020_004E || 0) + (props.B17020_005E || 0);
@@ -384,7 +458,7 @@
             layerControl.addOverlay(layerGroup, `<span style='color:${markerColor}; font-weight:bold; font-size:16px;'>●</span> ${layerName} Housing`);
         }
 
-        // --- COMMUNITY PARTNERS DATA ---
+        // --- UPDATED: COMMUNITY PARTNERS DATA WITH SIDEBAR LOGIC ---
         function loadCommunityPartners(filePath) {
             fetch(filePath)
                 .then(response => {
@@ -392,6 +466,11 @@
                     return response.json();
                 })
                 .then(data => {
+                    const partnerListEl = document.getElementById('partnerList');
+                    
+                    // Sort data alphabetically by organization name for easier browsing
+                    data.features.sort((a, b) => a.properties.organization.localeCompare(b.properties.organization));
+
                     const partnersLayer = L.geoJSON(data, {
                         pointToLayer: function (feature, latlng) {
                             return L.circleMarker(latlng, {
@@ -403,7 +482,26 @@
                             });
                         },
                         onEachFeature: function (feature, layer) {
+                            // Bind popup to map marker
                             layer.bindPopup(`<b>${feature.properties.organization}</b><br>${feature.properties.address}`);
+                            
+                            // Build list item for sidebar
+                            const li = document.createElement('li');
+                            li.className = 'partner-item';
+                            li.innerHTML = `<b>${feature.properties.organization}</b><br><small style="color: #666;">${feature.properties.address}</small>`;
+                            
+                            // Add click functionality to fly to location
+                            li.addEventListener('click', () => {
+                                // Zoom to neighborhood scale (level 16)
+                                map.flyTo(layer.getLatLng(), 16, { duration: 1 });
+                                
+                                // Open popup automatically after short delay for panning animation
+                                setTimeout(() => {
+                                    layer.openPopup();
+                                }, 1000); 
+                            });
+                            
+                            partnerListEl.appendChild(li);
                         }
                     });
 
@@ -424,3 +522,5 @@
 </script>
 </body>
 </html>
+
+```
