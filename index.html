@@ -150,6 +150,18 @@
         .color-item { display: flex; align-items: center; margin-bottom: 6px; }
         .color-box { width: 16px; height: 16px; margin-right: 10px; border: 1px solid #ccc; border-radius: 3px; }
 
+        /* Permanent Map Labels for Community Partners */
+        .partner-tooltip {
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid #f39c12;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            color: #2c3e50;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            padding: 3px 6px;
+        }
+
         #map-container {
             flex-grow: 1;
             position: relative;
@@ -240,7 +252,6 @@
     let searchMarker = null; 
 
     // --- CENTRAL APP DATA REGISTRY ---
-    // Added 'group' for categorization, and 'defaultOn' for initial visibility
     const appData = {
         partners: { id: 'partners', group: 'Outreach 2026', title: 'Community Partners', color: '#f39c12', layer: L.featureGroup(), isPolygon: false, defaultOn: true },
         everett: { id: 'everett', group: 'Public Housing Data', title: 'Everett Housing', color: '#e6194b', layer: L.featureGroup(), isPolygon: false, defaultOn: false },
@@ -289,12 +300,14 @@
             "MassGIS Detailed": massGISDetailed
         };
 
-        // Add Basemap selector to map
         L.control.layers(baseMaps, null, { position: 'topright' }).addTo(map);
 
         // 3-Mile Outreach Area Ring
         L.circle([lat, lng], { color: 'red', weight: 2, fillColor: 'transparent', fillOpacity: 0, radius: radiusMeters, interactive: false }).addTo(map);
-        L.marker([lat, lng]).addTo(map).bindPopup("<b>Riverside Community Care Early Head Start</b><br>Outreach Centerpoint").openPopup();
+        
+        // --- UPDATED: Main Blue Marker ---
+        // Bound popup but removed .openPopup() so it is hidden by default
+        L.marker([lat, lng]).addTo(map).bindPopup("<b>Riverside Community Care Early Head Start</b><br>Outreach Centerpoint");
 
         // Initialize Poverty Tracts Layer
         appData.tracts.layer = L.esri.featureLayer({
@@ -322,41 +335,31 @@
     // --- SIDEBAR UI GENERATION ---
     function buildSidebarUI() {
         const container = document.getElementById('accordion-container');
-        
-        // Define desired order of groups
         const groups = ['Outreach 2026', 'Public Housing Data', 'Census Data'];
 
         groups.forEach(groupName => {
-            // Create Group Header
             const groupHeader = document.createElement('div');
             groupHeader.className = 'sidebar-group';
             groupHeader.innerText = groupName;
             container.appendChild(groupHeader);
 
-            // Filter appData to only items belonging to this group
             Object.values(appData).filter(d => d.group === groupName).forEach(data => {
-                
-                // Create Section Wrapper
                 const section = document.createElement('div');
                 section.className = 'category-section';
                 
-                // Create Header
                 const header = document.createElement('div');
                 header.className = 'category-header';
                 
-                // Checkbox Toggle
                 const checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
                 checkbox.className = 'category-toggle';
                 checkbox.checked = data.defaultOn; 
                 checkbox.id = `toggle-${data.id}`;
                 
-                // Color dot
                 const colorDot = document.createElement('div');
                 colorDot.className = 'category-color';
                 colorDot.style.background = data.color;
 
-                // Title
                 const title = document.createElement('div');
                 title.className = 'category-title';
                 title.innerText = data.title;
@@ -366,12 +369,10 @@
                 header.appendChild(title);
                 section.appendChild(header);
 
-                // Create Content Area (Accordion body)
                 const content = document.createElement('div');
                 content.className = 'category-content';
                 content.id = `content-${data.id}`;
 
-                // If it's tracts, show legend. Otherwise, show list container.
                 if (data.isPolygon) {
                     content.innerHTML = `
                         <div class="tract-legend">
@@ -393,8 +394,6 @@
                 section.appendChild(content);
                 container.appendChild(section);
 
-                // --- EVENT LISTENERS ---
-                // 1. Checkbox click (Toggle map layer)
                 checkbox.addEventListener('change', (e) => {
                     if (e.target.checked) {
                         map.addLayer(data.layer);
@@ -403,21 +402,14 @@
                     }
                 });
 
-                // 2. Header click (Toggle Accordion)
                 header.addEventListener('click', (e) => {
-                    // Ignore if user specifically clicked the checkbox
                     if(e.target === checkbox) return; 
-
-                    // Close all other accordions
                     document.querySelectorAll('.category-content').forEach(el => {
                         if (el !== content) el.classList.remove('active');
                     });
-                    
-                    // Toggle this accordion
                     content.classList.toggle('active');
                 });
                 
-                // Add default layers to map
                 if(data.defaultOn) {
                     map.addLayer(data.layer);
                 }
@@ -479,9 +471,17 @@
                     const title = feature.properties.organization;
                     const address = feature.properties.address;
 
+                    // --- UPDATED: Added bindTooltip with permanent: true ---
                     const marker = L.circleMarker(latlng, {
                         radius: 7, fillColor: categoryObject.color, color: '#000000', weight: 1.5, fillOpacity: 0.9
-                    }).bindPopup(`<b>${title}</b><br>${address}`);
+                    })
+                    .bindPopup(`<b>${title}</b><br>${address}`)
+                    .bindTooltip(title, { 
+                        permanent: true, 
+                        direction: 'right', 
+                        offset: [10, 0], 
+                        className: 'partner-tooltip' 
+                    });
 
                     categoryObject.layer.addLayer(marker);
 
@@ -492,7 +492,6 @@
                     ul.appendChild(li);
                 });
 
-                // Auto-Zoom map to bounds of community partners once loaded
                 if(data.features.length > 0) {
                     map.fitBounds(categoryObject.layer.getBounds(), { padding: [50, 50] });
                 }
@@ -550,7 +549,6 @@
         document.getElementById('addressInput').value = '';
         if (searchMarker) { map.removeLayer(searchMarker); searchMarker = null; }
         
-        // Return to Community Partners bounds instead of fixed lat/lng if desired
         if(appData.partners.layer.getLayers().length > 0) {
             map.fitBounds(appData.partners.layer.getBounds(), { padding: [50, 50] });
         } else {
