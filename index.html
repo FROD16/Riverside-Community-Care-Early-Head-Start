@@ -62,6 +62,17 @@
             text-align: center;
         }
 
+        /* Sidebar Group Headers */
+        .sidebar-group {
+            padding: 15px 15px 5px 15px;
+            font-size: 11px;
+            text-transform: uppercase;
+            font-weight: bold;
+            color: #7f8c8d;
+            letter-spacing: 1px;
+            border-bottom: 1px solid #ddd;
+        }
+
         /* Accordion Categories */
         .category-section {
             border-bottom: 1px solid #ddd;
@@ -188,7 +199,7 @@
 <body>
 
 <div id="topbar">
-    Riverside Community Care Map Viewer
+    Riverside Community Care Early Head Start Map Viewer
 </div>
 
 <div id="welcomeModal" class="modal-overlay">
@@ -229,14 +240,14 @@
     let searchMarker = null; 
 
     // --- CENTRAL APP DATA REGISTRY ---
-    // This object manages the state, colors, and Leaflet layer groups for all data
+    // Added 'group' for categorization, and 'defaultOn' for initial visibility
     const appData = {
-        tracts: { id: 'tracts', title: 'Children in Poverty (Tracts)', color: '#E31A1C', layer: null, isPolygon: true },
-        partners: { id: 'partners', title: 'Community Partners', color: '#f39c12', layer: L.featureGroup(), items: [] },
-        everett: { id: 'everett', title: 'Everett Housing', color: '#e6194b', layer: L.featureGroup(), items: [] },
-        malden: { id: 'malden', title: 'Malden Housing', color: '#911eb4', layer: L.featureGroup(), items: [] },
-        medford: { id: 'medford', title: 'Medford Housing', color: '#008080', layer: L.featureGroup(), items: [] },
-        somerville: { id: 'somerville', title: 'Somerville Housing', color: '#4363d8', layer: L.featureGroup(), items: [] }
+        partners: { id: 'partners', group: 'Outreach 2026', title: 'Community Partners', color: '#f39c12', layer: L.featureGroup(), isPolygon: false, defaultOn: true },
+        everett: { id: 'everett', group: 'Public Housing Data', title: 'Everett Housing', color: '#e6194b', layer: L.featureGroup(), isPolygon: false, defaultOn: false },
+        malden: { id: 'malden', group: 'Public Housing Data', title: 'Malden Housing', color: '#911eb4', layer: L.featureGroup(), isPolygon: false, defaultOn: false },
+        medford: { id: 'medford', group: 'Public Housing Data', title: 'Medford Housing', color: '#008080', layer: L.featureGroup(), isPolygon: false, defaultOn: false },
+        somerville: { id: 'somerville', group: 'Public Housing Data', title: 'Somerville Housing', color: '#4363d8', layer: L.featureGroup(), isPolygon: false, defaultOn: false },
+        tracts: { id: 'tracts', group: 'Census Data', title: 'Children in Poverty (Tracts)', color: '#E31A1C', layer: null, isPolygon: true, defaultOn: false }
     };
 
     // --- INITIALIZE MAP ---
@@ -259,18 +270,33 @@
         map = L.map('map', { zoomControl: false }).setView([lat, lng], 13);
         L.control.zoom({ position: 'topright' }).addTo(map);
 
-        L.tileLayer('https://tiles.arcgis.com/tiles/hGdibHYSPO59RG1h/arcgis/rest/services/MassGISBasemap/MapServer/tile/{z}/{y}/{x}', {
-            maxZoom: 19, attribution: '&copy; MassGIS'
-        }).addTo(map);
+        // --- BASEMAPS ---
+        const grayscale = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
+            maxZoom: 16
+        });
 
-        L.tileLayer('https://tiles.arcgis.com/tiles/hGdibHYSPO59RG1h/arcgis/rest/services/MassGIS_Basemap_Detailed_Features/MapServer/tile/{z}/{y}/{x}', {
-            maxZoom: 19, attribution: '&copy; MassGIS Detailed Features'
-        }).addTo(map);
+        const massGISDetailed = L.layerGroup([
+            L.tileLayer('https://tiles.arcgis.com/tiles/hGdibHYSPO59RG1h/arcgis/rest/services/MassGISBasemap/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: '&copy; MassGIS' }),
+            L.tileLayer('https://tiles.arcgis.com/tiles/hGdibHYSPO59RG1h/arcgis/rest/services/MassGIS_Basemap_Detailed_Features/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: '&copy; MassGIS Detailed' })
+        ]);
 
+        // Default to Grayscale
+        grayscale.addTo(map);
+
+        const baseMaps = {
+            "Grayscale Map": grayscale,
+            "MassGIS Detailed": massGISDetailed
+        };
+
+        // Add Basemap selector to map
+        L.control.layers(baseMaps, null, { position: 'topright' }).addTo(map);
+
+        // 3-Mile Outreach Area Ring
         L.circle([lat, lng], { color: 'red', weight: 2, fillColor: 'transparent', fillOpacity: 0, radius: radiusMeters, interactive: false }).addTo(map);
         L.marker([lat, lng]).addTo(map).bindPopup("<b>Riverside Community Care Early Head Start</b><br>Outreach Centerpoint").openPopup();
 
-        // Initialize Poverty Tracts Layer (Not point data, so handled specifically)
+        // Initialize Poverty Tracts Layer
         appData.tracts.layer = L.esri.featureLayer({
             url: 'https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/ACS_Poverty_by_Age_Boundaries/FeatureServer/2',
             where: "GEOID LIKE '25%'", 
@@ -297,92 +323,105 @@
     function buildSidebarUI() {
         const container = document.getElementById('accordion-container');
         
-        Object.keys(appData).forEach(key => {
-            const data = appData[key];
-            
-            // Create Section Wrapper
-            const section = document.createElement('div');
-            section.className = 'category-section';
-            
-            // Create Header
-            const header = document.createElement('div');
-            header.className = 'category-header';
-            
-            // Checkbox Toggle
-            const checkbox = document.createElement('input');
-            checkbox.type = 'checkbox';
-            checkbox.className = 'category-toggle';
-            checkbox.checked = true; // Layers default to ON
-            checkbox.id = `toggle-${data.id}`;
-            
-            // Color dot
-            const colorDot = document.createElement('div');
-            colorDot.className = 'category-color';
-            colorDot.style.background = data.color;
+        // Define desired order of groups
+        const groups = ['Outreach 2026', 'Public Housing Data', 'Census Data'];
 
-            // Title
-            const title = document.createElement('div');
-            title.className = 'category-title';
-            title.innerText = data.title;
+        groups.forEach(groupName => {
+            // Create Group Header
+            const groupHeader = document.createElement('div');
+            groupHeader.className = 'sidebar-group';
+            groupHeader.innerText = groupName;
+            container.appendChild(groupHeader);
 
-            header.appendChild(checkbox);
-            header.appendChild(colorDot);
-            header.appendChild(title);
-            section.appendChild(header);
+            // Filter appData to only items belonging to this group
+            Object.values(appData).filter(d => d.group === groupName).forEach(data => {
+                
+                // Create Section Wrapper
+                const section = document.createElement('div');
+                section.className = 'category-section';
+                
+                // Create Header
+                const header = document.createElement('div');
+                header.className = 'category-header';
+                
+                // Checkbox Toggle
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.className = 'category-toggle';
+                checkbox.checked = data.defaultOn; 
+                checkbox.id = `toggle-${data.id}`;
+                
+                // Color dot
+                const colorDot = document.createElement('div');
+                colorDot.className = 'category-color';
+                colorDot.style.background = data.color;
 
-            // Create Content Area (Accordion body)
-            const content = document.createElement('div');
-            content.className = 'category-content';
-            content.id = `content-${data.id}`;
+                // Title
+                const title = document.createElement('div');
+                title.className = 'category-title';
+                title.innerText = data.title;
 
-            // If it's tracts, show legend. Otherwise, show list container.
-            if (data.isPolygon) {
-                content.innerHTML = `
-                    <div class="tract-legend">
-                        <b>Legend: Children under 18 below poverty line</b>
-                        <div class="color-scale">
-                            <div class="color-item"><div class="color-box" style="background: #FED976;"></div> 11 - 50 Children</div>
-                            <div class="color-item"><div class="color-box" style="background: #FD8D3C;"></div> 51 - 100 Children</div>
-                            <div class="color-item"><div class="color-box" style="background: #E31A1C;"></div> 101 - 250 Children</div>
-                            <div class="color-item"><div class="color-box" style="background: #800026;"></div> 250+ Children</div>
-                        </div>
-                    </div>`;
-            } else {
-                const ul = document.createElement('ul');
-                ul.className = 'category-list';
-                ul.id = `list-${data.id}`;
-                content.appendChild(ul);
-            }
+                header.appendChild(checkbox);
+                header.appendChild(colorDot);
+                header.appendChild(title);
+                section.appendChild(header);
 
-            section.appendChild(content);
-            container.appendChild(section);
+                // Create Content Area (Accordion body)
+                const content = document.createElement('div');
+                content.className = 'category-content';
+                content.id = `content-${data.id}`;
 
-            // --- EVENT LISTENERS ---
-            // 1. Checkbox click (Toggle map layer)
-            checkbox.addEventListener('change', (e) => {
-                if (e.target.checked) {
-                    map.addLayer(data.layer);
+                // If it's tracts, show legend. Otherwise, show list container.
+                if (data.isPolygon) {
+                    content.innerHTML = `
+                        <div class="tract-legend">
+                            <b>Legend: Children under 18 below poverty line</b>
+                            <div class="color-scale">
+                                <div class="color-item"><div class="color-box" style="background: #FED976;"></div> 11 - 50 Children</div>
+                                <div class="color-item"><div class="color-box" style="background: #FD8D3C;"></div> 51 - 100 Children</div>
+                                <div class="color-item"><div class="color-box" style="background: #E31A1C;"></div> 101 - 250 Children</div>
+                                <div class="color-item"><div class="color-box" style="background: #800026;"></div> 250+ Children</div>
+                            </div>
+                        </div>`;
                 } else {
-                    map.removeLayer(data.layer);
+                    const ul = document.createElement('ul');
+                    ul.className = 'category-list';
+                    ul.id = `list-${data.id}`;
+                    content.appendChild(ul);
                 }
-            });
 
-            // 2. Header click (Toggle Accordion)
-            header.addEventListener('click', (e) => {
-                // Ignore if user specifically clicked the checkbox
-                if(e.target === checkbox) return; 
+                section.appendChild(content);
+                container.appendChild(section);
 
-                // Close all other accordions
-                document.querySelectorAll('.category-content').forEach(el => {
-                    if (el !== content) el.classList.remove('active');
+                // --- EVENT LISTENERS ---
+                // 1. Checkbox click (Toggle map layer)
+                checkbox.addEventListener('change', (e) => {
+                    if (e.target.checked) {
+                        map.addLayer(data.layer);
+                    } else {
+                        map.removeLayer(data.layer);
+                    }
+                });
+
+                // 2. Header click (Toggle Accordion)
+                header.addEventListener('click', (e) => {
+                    // Ignore if user specifically clicked the checkbox
+                    if(e.target === checkbox) return; 
+
+                    // Close all other accordions
+                    document.querySelectorAll('.category-content').forEach(el => {
+                        if (el !== content) el.classList.remove('active');
+                    });
+                    
+                    // Toggle this accordion
+                    content.classList.toggle('active');
                 });
                 
-                // Toggle this accordion
-                content.classList.toggle('active');
+                // Add default layers to map
+                if(data.defaultOn) {
+                    map.addLayer(data.layer);
+                }
             });
-            
-            // Add default layers to map
-            map.addLayer(data.layer);
         });
     }
 
@@ -402,8 +441,6 @@
                 const targetObj = data.find(obj => obj.data && obj.data.buildingSearch && obj.data.buildingSearch.allResults);
                 if (targetObj) {
                     let buildings = targetObj.data.buildingSearch.allResults;
-                    
-                    // Sort alphabetically by name
                     buildings.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
 
                     const ul = document.getElementById(`list-${categoryObject.id}`);
@@ -413,14 +450,12 @@
                             const latlng = [building.location.latitude, building.location.longitude];
                             const title = building.name || "Unnamed Facility";
                             
-                            // Map Marker
                             const marker = L.circleMarker(latlng, {
                                 color: '#000000', weight: 1.5, fillColor: categoryObject.color, fillOpacity: 0.9, radius: 6
                             }).bindPopup(`<b>${title}</b><br>ID: ${building.slug || building.id}`);
                             
                             categoryObject.layer.addLayer(marker);
 
-                            // Sidebar List Item
                             const li = document.createElement('li');
                             li.className = 'list-item';
                             li.innerHTML = `<b>${title}</b>`;
@@ -436,7 +471,6 @@
         fetch(filePath)
             .then(res => res.ok ? res.json() : Promise.reject(res))
             .then(data => {
-                // Sort alphabetically
                 data.features.sort((a, b) => a.properties.organization.localeCompare(b.properties.organization));
                 const ul = document.getElementById(`list-${categoryObject.id}`);
 
@@ -445,28 +479,30 @@
                     const title = feature.properties.organization;
                     const address = feature.properties.address;
 
-                    // Map Marker
                     const marker = L.circleMarker(latlng, {
                         radius: 7, fillColor: categoryObject.color, color: '#000000', weight: 1.5, fillOpacity: 0.9
                     }).bindPopup(`<b>${title}</b><br>${address}`);
 
                     categoryObject.layer.addLayer(marker);
 
-                    // Sidebar List Item
                     const li = document.createElement('li');
                     li.className = 'list-item';
                     li.innerHTML = `<b>${title}</b><br><small style="color: #666;">${address}</small>`;
                     li.addEventListener('click', () => flyToItem(categoryObject, marker, latlng));
                     ul.appendChild(li);
                 });
+
+                // Auto-Zoom map to bounds of community partners once loaded
+                if(data.features.length > 0) {
+                    map.fitBounds(categoryObject.layer.getBounds(), { padding: [50, 50] });
+                }
+
             }).catch(err => console.error(`Error loading ${filePath}:`, err));
     }
 
-    // Interactive jump function
     function flyToItem(categoryObject, marker, latlng) {
         const checkbox = document.getElementById(`toggle-${categoryObject.id}`);
         
-        // If user turned the layer off, turn it back on so they can see the marker
         if (!checkbox.checked) {
             checkbox.checked = true;
             map.addLayer(categoryObject.layer);
@@ -513,7 +549,13 @@
     function clearSearch() {
         document.getElementById('addressInput').value = '';
         if (searchMarker) { map.removeLayer(searchMarker); searchMarker = null; }
-        map.flyTo([lat, lng], 13);
+        
+        // Return to Community Partners bounds instead of fixed lat/lng if desired
+        if(appData.partners.layer.getLayers().length > 0) {
+            map.fitBounds(appData.partners.layer.getBounds(), { padding: [50, 50] });
+        } else {
+            map.flyTo([lat, lng], 13);
+        }
     }
 
     document.getElementById("addressInput").addEventListener("keypress", (e) => {
