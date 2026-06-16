@@ -150,7 +150,7 @@
         .color-item { display: flex; align-items: center; margin-bottom: 6px; }
         .color-box { width: 16px; height: 16px; margin-right: 10px; border: 1px solid #ccc; border-radius: 3px; }
 
-        /* Permanent Map Labels for Community Partners */
+        /* Map Labels for Community Partners (Hover) */
         .partner-tooltip {
             background: rgba(255, 255, 255, 0.95);
             border: 1px solid #f39c12;
@@ -305,8 +305,7 @@
         // 3-Mile Outreach Area Ring
         L.circle([lat, lng], { color: 'red', weight: 2, fillColor: 'transparent', fillOpacity: 0, radius: radiusMeters, interactive: false }).addTo(map);
         
-        // --- UPDATED: Main Blue Marker ---
-        // Bound popup but removed .openPopup() so it is hidden by default
+        // Main Blue Marker
         L.marker([lat, lng]).addTo(map).bindPopup("<b>Riverside Community Care Early Head Start</b><br>Outreach Centerpoint");
 
         // Initialize Poverty Tracts Layer
@@ -471,13 +470,12 @@
                     const title = feature.properties.organization;
                     const address = feature.properties.address;
 
-                    // --- UPDATED: Added bindTooltip with permanent: true ---
+                    // --- UPDATED: Removed permanent: true from Tooltip ---
                     const marker = L.circleMarker(latlng, {
                         radius: 7, fillColor: categoryObject.color, color: '#000000', weight: 1.5, fillOpacity: 0.9
                     })
                     .bindPopup(`<b>${title}</b><br>${address}`)
                     .bindTooltip(title, { 
-                        permanent: true, 
                         direction: 'right', 
                         offset: [10, 0], 
                         className: 'partner-tooltip' 
