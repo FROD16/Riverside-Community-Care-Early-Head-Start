@@ -3,239 +3,219 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Early Head Start Outreach Map - Poverty & Housing</title>
+    <title>Early Head Start Outreach Map</title>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
     
     <style>
-        /* --- UPDATED: FLEXBOX SPLIT-SCREEN LAYOUT --- */
+        /* --- APPLICATION LAYOUT --- */
         body { 
             margin: 0; 
             padding: 0; 
             font-family: sans-serif; 
             overflow: hidden; 
-            display: flex; /* Creates the side-by-side layout */
+            display: flex; 
+            flex-direction: column;
             height: 100vh;
         }
+
+        /* Top Header Bar */
+        #topbar {
+            height: 60px;
+            background: #2c3e50;
+            color: white;
+            display: flex;
+            align-items: center;
+            padding: 0 25px;
+            font-size: 22px;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 2000;
+        }
+
+        #main-workspace {
+            display: flex;
+            flex-grow: 1;
+            height: calc(100vh - 60px);
+            position: relative;
+        }
         
+        /* Interactive Sidebar */
         #sidebar {
-            width: 320px;
+            width: 350px;
             background: #f8f9fa;
             border-right: 1px solid #ccc;
             box-shadow: 2px 0 5px rgba(0,0,0,0.1);
             z-index: 100;
             display: flex;
             flex-direction: column;
-        }
-
-        #sidebar-header {
-            padding: 15px;
-            background: #2c3e50;
-            color: white;
-        }
-
-        #sidebar-header h3 {
-            margin: 0;
-            font-size: 18px;
-        }
-
-        #partnerList {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            overflow-y: auto; /* Allows scrolling if list gets too long */
-            flex-grow: 1;
-        }
-
-        .partner-item {
-            padding: 15px;
-            border-bottom: 1px solid #eee;
-            cursor: pointer;
-            transition: background 0.2s;
-            line-height: 1.4;
-        }
-
-        .partner-item:hover {
-            background: #e9ecef;
-        }
-
-        #map { 
-            flex-grow: 1; /* Map takes up remaining width */
-            position: relative; 
-            z-index: 1; 
-        }
-        
-        /* Control box styling */
-        .leaflet-control-layers {
-            background: rgba(255, 255, 255, 0.9);
-            padding: 10px;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            max-height: 80vh;
             overflow-y: auto;
         }
 
-        .control-title {
-            text-align: center;
-            font-size: 14px;
-            font-weight: bold;
-            margin-bottom: 8px;
-            padding-bottom: 8px;
+        .sidebar-title {
+            padding: 15px;
+            background: #e9ecef;
+            margin: 0;
+            font-size: 15px;
+            color: #333;
             border-bottom: 1px solid #ccc;
-            max-width: 250px;
+            text-align: center;
+        }
+
+        /* Accordion Categories */
+        .category-section {
+            border-bottom: 1px solid #ddd;
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            background: #ffffff;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .category-header:hover {
+            background: #f1f3f5;
+        }
+
+        .category-toggle {
+            margin-right: 12px;
+            cursor: pointer;
+            width: 16px;
+            height: 16px;
+        }
+
+        .category-color {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            margin-right: 10px;
+            border: 1px solid #555;
+        }
+
+        .category-title {
+            flex-grow: 1;
+            font-weight: bold;
+            font-size: 14px;
+            color: #2c3e50;
+        }
+
+        .category-content {
+            display: none; /* Hidden by default */
+            max-height: 45vh;
+            overflow-y: auto;
+            background: #f8f9fa;
+            border-top: 1px solid #eee;
+        }
+
+        .category-content.active {
+            display: block; /* Shown when active */
+        }
+
+        .category-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .list-item {
+            padding: 10px 15px 10px 45px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            font-size: 13px;
+            line-height: 1.4;
+            transition: background 0.2s;
+        }
+
+        .list-item:hover {
+            background: #e2e6ea;
+        }
+
+        /* Tract Legend Specifics */
+        .tract-legend { padding: 15px; font-size: 13px; }
+        .color-scale { display: flex; flex-direction: column; margin-top: 10px; }
+        .color-item { display: flex; align-items: center; margin-bottom: 6px; }
+        .color-box { width: 16px; height: 16px; margin-right: 10px; border: 1px solid #ccc; border-radius: 3px; }
+
+        #map-container {
+            flex-grow: 1;
+            position: relative;
+        }
+
+        #map { 
+            width: 100%; 
+            height: 100%; 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            z-index: 1; 
         }
 
         /* --- RESPONSIVE SEARCH BAR --- */
         #search-container {
             position: absolute;
             top: 15px;
-            left: 340px; /* UPDATED: Shifted right to clear the new 320px sidebar */
+            left: 20px; 
             z-index: 1000; 
             background: white;
             padding: 8px;
             border-radius: 5px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.3);
             display: flex;
-            flex-wrap: wrap; 
             gap: 5px;
-            max-width: calc(100vw - 360px);
-            box-sizing: border-box;
         }
         #search-container input {
-            padding: 8px;
-            width: 220px;
-            flex-grow: 1;
-            border: 1px solid #ccc;
-            border-radius: 3px;
-            font-size: 14px;
+            padding: 8px; width: 220px; border: 1px solid #ccc; border-radius: 3px; font-size: 14px;
         }
         #search-container button {
-            padding: 8px 12px;
-            background: #2980b9;
-            color: white;
-            border: none;
-            border-radius: 3px;
-            font-size: 14px;
-            cursor: pointer;
-            font-weight: bold;
-            flex-grow: 1;
+            padding: 8px 12px; background: #2980b9; color: white; border: none; border-radius: 3px; font-size: 14px; cursor: pointer; font-weight: bold;
         }
         #search-container button:hover { background: #2471a3; }
         .clear-btn { background: #95a5a6 !important; }
         .clear-btn:hover { background: #7f8c8d !important; }
 
-        /* --- RESPONSIVE MODAL POPUP --- */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(0, 0, 0, 0.7);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999; 
-        }
-
-        .modal-content {
-            background: white;
-            padding: 25px;
-            border-radius: 8px;
-            width: 90%; 
-            max-width: 600px;
-            max-height: 90vh; 
-            overflow-y: auto; 
-            box-sizing: border-box;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            line-height: 1.6;
-        }
-
+        /* --- MODAL --- */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.7); display: flex; justify-content: center; align-items: center; z-index: 9999; }
+        .modal-content { background: white; padding: 25px; border-radius: 8px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; box-sizing: border-box; box-shadow: 0 4px 15px rgba(0,0,0,0.3); line-height: 1.6; }
         .modal-content h2 { margin-top: 0; color: #2c3e50; font-size: 22px; }
-        .modal-content h3 { margin-bottom: 10px; color: #34495e; border-bottom: 1px solid #eee; padding-bottom: 5px; font-size: 17px; }
         .modal-content p { font-size: 14px; color: #444; margin-bottom: 15px; }
-        .modal-content a { color: #0077FF; text-decoration: none; }
-        .modal-content a:hover { text-decoration: underline; }
-        
-        .legend-list { list-style: none; padding: 0; margin-bottom: 20px; font-size: 14px; color: #444; }
-        .legend-list li { margin-bottom: 8px; display: flex; align-items: center; }
-        
-        .color-scale { display: flex; flex-direction: column; margin-left: 20px; margin-top: 10px; margin-bottom: 20px;}
-        .color-item { display: flex; align-items: center; margin-bottom: 6px; font-size: 14px;}
-        .color-box { width: 18px; height: 18px; margin-right: 10px; border: 1px solid #ccc; border-radius: 3px; }
-
-        .caveat-box {
-            background: #f8f9fa;
-            border-left: 4px solid #e74c3c;
-            padding: 12px 15px;
-            font-size: 13px;
-            color: #555;
-            font-style: italic;
-            margin-bottom: 20px;
-        }
-
-        .start-btn {
-            display: block;
-            width: 100%;
-            padding: 14px;
-            background: #2980b9;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 10px;
-            transition: background 0.2s;
-        }
+        .start-btn { display: block; width: 100%; padding: 14px; background: #2980b9; color: white; border: none; border-radius: 5px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; transition: background 0.2s; }
         .start-btn:hover { background: #2471a3; }
     </style>
 </head>
 <body>
 
+<div id="topbar">
+    Riverside Community Care Map Viewer
+</div>
+
 <div id="welcomeModal" class="modal-overlay">
     <div class="modal-content">
-        <h2>Outreach Planning Map</h2>
+        <h2>Outreach Planning Dashboard</h2>
         <p>This geospatial tool is designed to identify localized concentrations of families who may be eligible for Early Head Start interventions.</p>
-        
-        <h3>Map Symbols</h3>
-        <ul class="legend-list">
-            <li><b>Child Poverty Density (Census Tracts):</b> The choropleth shading indicates the absolute number of children (under 18) living below the federal poverty threshold within each census tract.</li>
-        </ul>
-        <div class="color-scale">
-            <div class="color-item"><div class="color-box" style="background: #FED976;"></div> 11 - 50 Children</div>
-            <div class="color-item"><div class="color-box" style="background: #FD8D3C;"></div> 51 - 100 Children</div>
-            <div class="color-item"><div class="color-box" style="background: #E31A1C;"></div> 101 - 250 Children</div>
-            <div class="color-item"><div class="color-box" style="background: #800026;"></div> 250+ Children</div>
-        </div>
-
-        <h3>Data Methodology & Sources</h3>
-        <p><b>Census Tract Poverty Data:</b> The demographic shading is dynamically sourced from the <b>2024 American Community Survey (ACS) 5-Year Estimates</b>. The ACS is an ongoing, nationwide survey conducted by the U.S. Census Bureau that provides highly detailed demographic, social, and economic data between decennial censuses.</p>
-        <p>Specifically, this map aggregates data from <a href="https://data.census.gov/table?q=B17020" target="_blank">Table B17020: Poverty Status in the Past 12 Months by Sex by Age</a>, calculating the total number of children under 18 living in households with incomes strictly below the official federal poverty measure.</p>
-        
-        <div class="caveat-box">
-            <b>Methodological Caveat:</b> Federal poverty thresholds are uniform across the contiguous United States and do not adjust for regional cost-of-living disparities. Because the Greater Boston metropolitan area requires disproportionately high expenditures for housing and essentials, the official poverty measure likely underrepresents true economic hardship. Many families residing outside the heavily shaded tracts may still experience profound financial instability and qualify for programmatic support.
-        </div>
-        
+        <p>Use the interactive sidebar on the left to toggle housing locations, community partners, and census poverty data on and off. Click on specific categories to view and search local addresses.</p>
         <button id="initMapBtn" class="start-btn">Initialize Map</button>
     </div>
 </div>
 
-<div id="sidebar" style="display: none;">
-    <div id="sidebar-header">
-        <h3>Community Partners</h3>
+<div id="main-workspace">
+    <div id="sidebar" style="display: none;">
+        <h3 class="sidebar-title">Map Layers & Data</h3>
+        <div id="accordion-container">
+            </div>
     </div>
-    <ul id="partnerList">
-        </ul>
-</div>
 
-<div id="search-container" style="display: none;">
-    <input type="text" id="addressInput" placeholder="Search an address...">
-    <button onclick="geocodeAddress()">Search</button>
-    <button class="clear-btn" onclick="clearSearch()">Clear</button>
+    <div id="map-container">
+        <div id="search-container" style="display: none;">
+            <input type="text" id="addressInput" placeholder="Search an address...">
+            <button onclick="geocodeAddress()">Search</button>
+            <button class="clear-btn" onclick="clearSearch()">Clear</button>
+        </div>
+        <div id="map"></div>
+    </div>
 </div>
-
-<div id="map"></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 <script src="https://unpkg.com/esri-leaflet@3.0.12/dist/esri-leaflet.js"></script>
@@ -243,271 +223,302 @@
 <script>
     const lat = 42.39676629287921;
     const lng = -71.1031099204534;
-    const radiusMeters = 3 * 1609.344; // 3 miles in meters
+    const radiusMeters = 3 * 1609.344;
     let map;
     let mapInitialized = false;
     let searchMarker = null; 
 
-    // Initialize Map Trigger
+    // --- CENTRAL APP DATA REGISTRY ---
+    // This object manages the state, colors, and Leaflet layer groups for all data
+    const appData = {
+        tracts: { id: 'tracts', title: 'Children in Poverty (Tracts)', color: '#E31A1C', layer: null, isPolygon: true },
+        partners: { id: 'partners', title: 'Community Partners', color: '#f39c12', layer: L.featureGroup(), items: [] },
+        everett: { id: 'everett', title: 'Everett Housing', color: '#e6194b', layer: L.featureGroup(), items: [] },
+        malden: { id: 'malden', title: 'Malden Housing', color: '#911eb4', layer: L.featureGroup(), items: [] },
+        medford: { id: 'medford', title: 'Medford Housing', color: '#008080', layer: L.featureGroup(), items: [] },
+        somerville: { id: 'somerville', title: 'Somerville Housing', color: '#4363d8', layer: L.featureGroup(), items: [] }
+    };
+
+    // --- INITIALIZE MAP ---
     document.getElementById('initMapBtn').addEventListener('click', function() {
         document.getElementById('welcomeModal').style.display = 'none';
         document.getElementById('search-container').style.display = 'flex'; 
-        document.getElementById('sidebar').style.display = 'flex'; // Unhide sidebar
+        document.getElementById('sidebar').style.display = 'flex'; 
         
         if (mapInitialized) return;
         mapInitialized = true;
 
         setTimeout(() => {
             buildLeafletMap();
+            buildSidebarUI();
+            fetchMapData();
         }, 100);
     });
 
-    // Address Search Logic
+    function buildLeafletMap() {
+        map = L.map('map', { zoomControl: false }).setView([lat, lng], 13);
+        L.control.zoom({ position: 'topright' }).addTo(map);
+
+        L.tileLayer('https://tiles.arcgis.com/tiles/hGdibHYSPO59RG1h/arcgis/rest/services/MassGISBasemap/MapServer/tile/{z}/{y}/{x}', {
+            maxZoom: 19, attribution: '&copy; MassGIS'
+        }).addTo(map);
+
+        L.tileLayer('https://tiles.arcgis.com/tiles/hGdibHYSPO59RG1h/arcgis/rest/services/MassGIS_Basemap_Detailed_Features/MapServer/tile/{z}/{y}/{x}', {
+            maxZoom: 19, attribution: '&copy; MassGIS Detailed Features'
+        }).addTo(map);
+
+        L.circle([lat, lng], { color: 'red', weight: 2, fillColor: 'transparent', fillOpacity: 0, radius: radiusMeters, interactive: false }).addTo(map);
+        L.marker([lat, lng]).addTo(map).bindPopup("<b>Riverside Community Care Early Head Start</b><br>Outreach Centerpoint").openPopup();
+
+        // Initialize Poverty Tracts Layer (Not point data, so handled specifically)
+        appData.tracts.layer = L.esri.featureLayer({
+            url: 'https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/ACS_Poverty_by_Age_Boundaries/FeatureServer/2',
+            where: "GEOID LIKE '25%'", 
+            style: function (feature) {
+                const p = feature.properties;
+                const total = (p.B17020_003E || 0) + (p.B17020_004E || 0) + (p.B17020_005E || 0);
+                let col = '#f2f2f2'; 
+                if (total > 250) col = '#800026';
+                else if (total > 100) col = '#E31A1C';
+                else if (total > 50) col = '#FD8D3C';
+                else if (total > 10) col = '#FED976';
+                return { fillColor: col, weight: 1, opacity: 0.8, color: '#ffffff', fillOpacity: 0.65 };
+            }
+        });
+
+        appData.tracts.layer.bindPopup(function (layer) {
+            const p = layer.feature.properties;
+            const t = (p.B17020_003E || 0) + (p.B17020_004E || 0) + (p.B17020_005E || 0);
+            return `<b>Census Tract:</b> ${p.GEOID}<hr style="margin:5px 0;"><b>Total Children in Poverty:</b> <span style="color:red;">${t}</span>`;
+        });
+    }
+
+    // --- SIDEBAR UI GENERATION ---
+    function buildSidebarUI() {
+        const container = document.getElementById('accordion-container');
+        
+        Object.keys(appData).forEach(key => {
+            const data = appData[key];
+            
+            // Create Section Wrapper
+            const section = document.createElement('div');
+            section.className = 'category-section';
+            
+            // Create Header
+            const header = document.createElement('div');
+            header.className = 'category-header';
+            
+            // Checkbox Toggle
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.className = 'category-toggle';
+            checkbox.checked = true; // Layers default to ON
+            checkbox.id = `toggle-${data.id}`;
+            
+            // Color dot
+            const colorDot = document.createElement('div');
+            colorDot.className = 'category-color';
+            colorDot.style.background = data.color;
+
+            // Title
+            const title = document.createElement('div');
+            title.className = 'category-title';
+            title.innerText = data.title;
+
+            header.appendChild(checkbox);
+            header.appendChild(colorDot);
+            header.appendChild(title);
+            section.appendChild(header);
+
+            // Create Content Area (Accordion body)
+            const content = document.createElement('div');
+            content.className = 'category-content';
+            content.id = `content-${data.id}`;
+
+            // If it's tracts, show legend. Otherwise, show list container.
+            if (data.isPolygon) {
+                content.innerHTML = `
+                    <div class="tract-legend">
+                        <b>Legend: Children under 18 below poverty line</b>
+                        <div class="color-scale">
+                            <div class="color-item"><div class="color-box" style="background: #FED976;"></div> 11 - 50 Children</div>
+                            <div class="color-item"><div class="color-box" style="background: #FD8D3C;"></div> 51 - 100 Children</div>
+                            <div class="color-item"><div class="color-box" style="background: #E31A1C;"></div> 101 - 250 Children</div>
+                            <div class="color-item"><div class="color-box" style="background: #800026;"></div> 250+ Children</div>
+                        </div>
+                    </div>`;
+            } else {
+                const ul = document.createElement('ul');
+                ul.className = 'category-list';
+                ul.id = `list-${data.id}`;
+                content.appendChild(ul);
+            }
+
+            section.appendChild(content);
+            container.appendChild(section);
+
+            // --- EVENT LISTENERS ---
+            // 1. Checkbox click (Toggle map layer)
+            checkbox.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    map.addLayer(data.layer);
+                } else {
+                    map.removeLayer(data.layer);
+                }
+            });
+
+            // 2. Header click (Toggle Accordion)
+            header.addEventListener('click', (e) => {
+                // Ignore if user specifically clicked the checkbox
+                if(e.target === checkbox) return; 
+
+                // Close all other accordions
+                document.querySelectorAll('.category-content').forEach(el => {
+                    if (el !== content) el.classList.remove('active');
+                });
+                
+                // Toggle this accordion
+                content.classList.toggle('active');
+            });
+            
+            // Add default layers to map
+            map.addLayer(data.layer);
+        });
+    }
+
+    // --- DATA FETCHING & POPULATION ---
+    function fetchMapData() {
+        loadCityHousingData('data/Everett.json', appData.everett);    
+        loadCityHousingData('data/Malden.json', appData.malden);      
+        loadCityHousingData('data/Medford.json', appData.medford);    
+        loadCityHousingData('data/Somerville.json', appData.somerville); 
+        loadCommunityPartners('data/CommunityPartners.json', appData.partners);
+    }
+
+    function loadCityHousingData(filePath, categoryObject) {
+        fetch(filePath)
+            .then(res => res.ok ? res.json() : Promise.reject(res))
+            .then(data => {
+                const targetObj = data.find(obj => obj.data && obj.data.buildingSearch && obj.data.buildingSearch.allResults);
+                if (targetObj) {
+                    let buildings = targetObj.data.buildingSearch.allResults;
+                    
+                    // Sort alphabetically by name
+                    buildings.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+
+                    const ul = document.getElementById(`list-${categoryObject.id}`);
+                    
+                    buildings.forEach(building => {
+                        if (building.location && building.location.latitude && building.location.longitude) {
+                            const latlng = [building.location.latitude, building.location.longitude];
+                            const title = building.name || "Unnamed Facility";
+                            
+                            // Map Marker
+                            const marker = L.circleMarker(latlng, {
+                                color: '#000000', weight: 1.5, fillColor: categoryObject.color, fillOpacity: 0.9, radius: 6
+                            }).bindPopup(`<b>${title}</b><br>ID: ${building.slug || building.id}`);
+                            
+                            categoryObject.layer.addLayer(marker);
+
+                            // Sidebar List Item
+                            const li = document.createElement('li');
+                            li.className = 'list-item';
+                            li.innerHTML = `<b>${title}</b>`;
+                            li.addEventListener('click', () => flyToItem(categoryObject, marker, latlng));
+                            ul.appendChild(li);
+                        }
+                    });
+                }
+            }).catch(err => console.error(`Error loading ${filePath}:`, err));
+    }
+
+    function loadCommunityPartners(filePath, categoryObject) {
+        fetch(filePath)
+            .then(res => res.ok ? res.json() : Promise.reject(res))
+            .then(data => {
+                // Sort alphabetically
+                data.features.sort((a, b) => a.properties.organization.localeCompare(b.properties.organization));
+                const ul = document.getElementById(`list-${categoryObject.id}`);
+
+                data.features.forEach(feature => {
+                    const latlng = [feature.geometry.coordinates[1], feature.geometry.coordinates[0]];
+                    const title = feature.properties.organization;
+                    const address = feature.properties.address;
+
+                    // Map Marker
+                    const marker = L.circleMarker(latlng, {
+                        radius: 7, fillColor: categoryObject.color, color: '#000000', weight: 1.5, fillOpacity: 0.9
+                    }).bindPopup(`<b>${title}</b><br>${address}`);
+
+                    categoryObject.layer.addLayer(marker);
+
+                    // Sidebar List Item
+                    const li = document.createElement('li');
+                    li.className = 'list-item';
+                    li.innerHTML = `<b>${title}</b><br><small style="color: #666;">${address}</small>`;
+                    li.addEventListener('click', () => flyToItem(categoryObject, marker, latlng));
+                    ul.appendChild(li);
+                });
+            }).catch(err => console.error(`Error loading ${filePath}:`, err));
+    }
+
+    // Interactive jump function
+    function flyToItem(categoryObject, marker, latlng) {
+        const checkbox = document.getElementById(`toggle-${categoryObject.id}`);
+        
+        // If user turned the layer off, turn it back on so they can see the marker
+        if (!checkbox.checked) {
+            checkbox.checked = true;
+            map.addLayer(categoryObject.layer);
+        }
+
+        map.flyTo(latlng, 16, { duration: 1 });
+        setTimeout(() => marker.openPopup(), 1000);
+    }
+
+    // --- GEOCODING SEARCH ---
     function geocodeAddress() {
         const input = document.getElementById('addressInput').value;
         if (!input) return;
-
         const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(input + ', MA')}`;
 
         fetch(url)
             .then(response => response.json())
             .then(data => {
                 if (data.length > 0) {
-                    const resultLat = parseFloat(data[0].lat);
-                    const resultLng = parseFloat(data[0].lon);
-                    const resultLatLng = L.latLng(resultLat, resultLng);
+                    const resultLatLng = L.latLng(parseFloat(data[0].lat), parseFloat(data[0].lon));
                     const centerLatLng = L.latLng(lat, lng);
-
                     const distMeters = map.distance(centerLatLng, resultLatLng);
 
-                    if (searchMarker) {
-                        map.removeLayer(searchMarker);
-                    }
+                    if (searchMarker) map.removeLayer(searchMarker);
 
-                    let popupMsg, markerColor;
-                    if (distMeters <= radiusMeters) {
-                        popupMsg = `<h4 style="margin:0; color:green;">✅ Inside 3-Mile Service Area</h4><p style="margin-top:5px;">This address is eligible.</p>`;
-                        markerColor = '#27ae60'; 
-                    } else {
-                        popupMsg = `<h4 style="margin:0; color:red;">❌ Outside 3-Mile Service Area</h4><p style="margin-top:5px;">This address is too far.</p>`;
-                        markerColor = '#c0392b'; 
-                    }
+                    let popupMsg = distMeters <= radiusMeters ? 
+                        `<h4 style="margin:0; color:green;">✅ Inside 3-Mile Area</h4>` : 
+                        `<h4 style="margin:0; color:red;">❌ Outside 3-Mile Area</h4>`;
+                    let markerColor = distMeters <= radiusMeters ? '#27ae60' : '#c0392b';
 
                     searchMarker = L.circleMarker(resultLatLng, {
-                        radius: 8,
-                        fillColor: markerColor,
-                        color: '#ffffff',
-                        weight: 2,
-                        fillOpacity: 1
+                        radius: 8, fillColor: markerColor, color: '#ffffff', weight: 2, fillOpacity: 1
                     }).addTo(map);
 
                     const cleanAddress = data[0].display_name.split(',').slice(0, 3).join(',');
                     searchMarker.bindPopup(`<b>${cleanAddress}</b><br><hr style="margin:5px 0;">${popupMsg}`).openPopup();
-                    
                     map.flyTo(resultLatLng, 15);
                 } else {
                     alert("Address not found. Try adding the city or ZIP code.");
                 }
-            })
-            .catch(error => console.error('Geocoding error:', error));
+            }).catch(error => console.error('Geocoding error:', error));
     }
 
-    // Clear Search Logic
     function clearSearch() {
         document.getElementById('addressInput').value = '';
-        if (searchMarker) {
-            map.removeLayer(searchMarker);
-            searchMarker = null;
-        }
+        if (searchMarker) { map.removeLayer(searchMarker); searchMarker = null; }
         map.flyTo([lat, lng], 13);
     }
 
-    document.getElementById("addressInput").addEventListener("keypress", function(event) {
-        if (event.key === "Enter") {
-            event.preventDefault();
-            geocodeAddress();
-        }
+    document.getElementById("addressInput").addEventListener("keypress", (e) => {
+        if (e.key === "Enter") { e.preventDefault(); geocodeAddress(); }
     });
-
-    // Map Building Logic
-    function buildLeafletMap() {
-        map = L.map('map', { zoomControl: false }).setView([lat, lng], 13);
-        map.invalidateSize();
-        
-        L.control.zoom({ position: 'topright' }).addTo(map);
-
-        L.tileLayer('https://tiles.arcgis.com/tiles/hGdibHYSPO59RG1h/arcgis/rest/services/MassGISBasemap/MapServer/tile/{z}/{y}/{x}', {
-            maxZoom: 19,
-            attribution: '&copy; MassGIS'
-        }).addTo(map);
-
-        L.tileLayer('https://tiles.arcgis.com/tiles/hGdibHYSPO59RG1h/arcgis/rest/services/MassGIS_Basemap_Detailed_Features/MapServer/tile/{z}/{y}/{x}', {
-            maxZoom: 19,
-            attribution: '&copy; MassGIS Detailed Features'
-        }).addTo(map);
-
-        L.circle([lat, lng], {
-            color: 'red',
-            weight: 2,
-            fillColor: 'transparent',
-            fillOpacity: 0,
-            radius: radiusMeters,
-            interactive: false 
-        }).addTo(map);
-
-        L.marker([lat, lng]).addTo(map)
-          .bindPopup("<b>Riverside Community Care Early Head Start</b><br>Outreach Centerpoint").openPopup();
-
-        const layerControl = L.control.layers({}, {}, { collapsed: false, position: 'bottomright' }).addTo(map);
-
-        const controlContainer = layerControl.getContainer();
-        if (controlContainer) {
-            const titleDiv = document.createElement('div');
-            titleDiv.className = 'control-title';
-            titleDiv.innerHTML = "Outreach Planning: Poverty Demographics & Housing";
-            controlContainer.prepend(titleDiv);
-        }
-
-        // --- CENSUS TRACT POVERTY DATA ---
-        const childPovertyTracts = L.esri.featureLayer({
-            url: 'https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/ACS_Poverty_by_Age_Boundaries/FeatureServer/2',
-            where: "GEOID LIKE '25%'", 
-            style: function (feature) {
-                const props = feature.properties;
-                const childrenInPoverty = (props.B17020_003E || 0) + (props.B17020_004E || 0) + (props.B17020_005E || 0);
-
-                let fillColor = '#f2f2f2'; 
-                if (childrenInPoverty > 250) fillColor = '#800026';
-                else if (childrenInPoverty > 100) fillColor = '#E31A1C';
-                else if (childrenInPoverty > 50) fillColor = '#FD8D3C';
-                else if (childrenInPoverty > 10) fillColor = '#FED976';
-
-                return {
-                    fillColor: fillColor,
-                    weight: 1,
-                    opacity: 0.8,
-                    color: '#ffffff',
-                    fillOpacity: 0.65
-                };
-            }
-        });
-
-        childPovertyTracts.bindPopup(function (layer) {
-            const props = layer.feature.properties;
-            const childrenInPoverty = (props.B17020_003E || 0) + (props.B17020_004E || 0) + (props.B17020_005E || 0);
-            return `
-                <div style="font-size: 14px;">
-                    <b>Census Tract:</b> ${props.GEOID}<br>
-                    <hr style="margin: 5px 0;">
-                    <b>Total Children in Poverty:</b> <span style="color:red; font-weight:bold;">${childrenInPoverty}</span><br>
-                    <ul style="margin: 5px 0; padding-left: 20px; font-size: 12px;">
-                        <li>Under 6 years: ${props.B17020_003E || 0}</li>
-                        <li>6 to 11 years: ${props.B17020_004E || 0}</li>
-                        <li>12 to 17 years: ${props.B17020_005E || 0}</li>
-                    </ul>
-                </div>
-            `;
-        });
-
-        layerControl.addOverlay(childPovertyTracts, `<span style='color:#E31A1C; font-weight:bold;'>■</span> Children in Poverty (Tracts)`);
-
-        // --- LOCAL HOUSING DATA ---
-        function loadCityHousingData(filePath, layerName, markerColor) {
-            const layerGroup = L.layerGroup();
-
-            fetch(filePath)
-                .then(response => {
-                    if (!response.ok) throw new Error(`Could not load ${filePath}`);
-                    return response.json();
-                })
-                .then(data => {
-                    const targetObject = data.find(obj => obj.data && obj.data.buildingSearch && obj.data.buildingSearch.allResults);
-                    
-                    if (targetObject) {
-                        const buildings = targetObject.data.buildingSearch.allResults;
-                        buildings.forEach(building => {
-                            if (building.location && building.location.latitude && building.location.longitude) {
-                                const marker = L.circleMarker([building.location.latitude, building.location.longitude], {
-                                    color: '#000000', 
-                                    weight: 1.5,
-                                    fillColor: markerColor,
-                                    fillOpacity: 0.9,
-                                    radius: 6
-                                });
-
-                                marker.bindPopup(`<b>${building.name || "Unnamed Facility"}</b><br>City: ${layerName}<br>ID: ${building.slug || building.id}`);
-                                layerGroup.addLayer(marker);
-                            }
-                        });
-                    }
-                })
-                .catch(err => console.error("Housing data fetch error:", err));
-
-            layerGroup.addTo(map);
-            layerControl.addOverlay(layerGroup, `<span style='color:${markerColor}; font-weight:bold; font-size:16px;'>●</span> ${layerName} Housing`);
-        }
-
-        // --- UPDATED: COMMUNITY PARTNERS DATA WITH SIDEBAR LOGIC ---
-        function loadCommunityPartners(filePath) {
-            fetch(filePath)
-                .then(response => {
-                    if (!response.ok) throw new Error(`Could not load ${filePath}`);
-                    return response.json();
-                })
-                .then(data => {
-                    const partnerListEl = document.getElementById('partnerList');
-                    
-                    // Sort data alphabetically by organization name for easier browsing
-                    data.features.sort((a, b) => a.properties.organization.localeCompare(b.properties.organization));
-
-                    const partnersLayer = L.geoJSON(data, {
-                        pointToLayer: function (feature, latlng) {
-                            return L.circleMarker(latlng, {
-                                radius: 7,
-                                fillColor: '#f39c12',
-                                color: '#000000',
-                                weight: 1.5,
-                                fillOpacity: 0.9
-                            });
-                        },
-                        onEachFeature: function (feature, layer) {
-                            // Bind popup to map marker
-                            layer.bindPopup(`<b>${feature.properties.organization}</b><br>${feature.properties.address}`);
-                            
-                            // Build list item for sidebar
-                            const li = document.createElement('li');
-                            li.className = 'partner-item';
-                            li.innerHTML = `<b>${feature.properties.organization}</b><br><small style="color: #666;">${feature.properties.address}</small>`;
-                            
-                            // Add click functionality to fly to location
-                            li.addEventListener('click', () => {
-                                // Zoom to neighborhood scale (level 16)
-                                map.flyTo(layer.getLatLng(), 16, { duration: 1 });
-                                
-                                // Open popup automatically after short delay for panning animation
-                                setTimeout(() => {
-                                    layer.openPopup();
-                                }, 1000); 
-                            });
-                            
-                            partnerListEl.appendChild(li);
-                        }
-                    });
-
-                    partnersLayer.addTo(map);
-                    layerControl.addOverlay(partnersLayer, `<span style='color:#f39c12; font-weight:bold; font-size:16px;'>●</span> Community Partners`);
-                })
-                .catch(err => console.error("Community Partners data fetch error:", err));
-        }
-
-        // Initialize Fetch Calls
-        loadCityHousingData('data/Everett.json', 'Everett', '#e6194b');    
-        loadCityHousingData('data/Malden.json', 'Malden', '#911eb4');      
-        loadCityHousingData('data/Medford.json', 'Medford', '#008080');    
-        loadCityHousingData('data/Somerville.json', 'Somerville', '#4363d8'); 
-        
-        loadCommunityPartners('data/CommunityPartners.json');
-    }
 </script>
 </body>
 </html>
